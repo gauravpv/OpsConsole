@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
+<head>
+<th:block th:replace="~{fragments/head :: head(pageTitle='Error')}"/>
+</head>
+<body class="opsconsole-app bg-background text-on-background font-body-md min-h-screen flex items-center justify-center p-unit-lg">
+<main class="max-w-lg w-full bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-xl text-center space-y-unit-md">
+<span class="material-symbols-outlined text-error text-[48px]">error</span>
+<h1 class="font-headline-sm text-headline-sm font-bold text-on-surface" th:text="|Error ${status}|">Error</h1>
+<p class="text-body-md text-on-surface-variant" th:text="${message} ?: 'Something went wrong while loading this page.'">Message</p>
+<a th:href="@{/login}" class="inline-flex items-center gap-2 px-unit-lg py-2 rounded-lg bg-secondary-container text-on-secondary-container font-title-md hover:bg-secondary-container/90">
+<span class="material-symbols-outlined text-[20px]">login</span>
+Back to sign in
+</a>
+</main>
+</body>
+</html>

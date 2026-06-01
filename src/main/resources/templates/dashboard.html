@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
+<head>
+<th:block th:replace="~{fragments/head :: head(pageTitle='Operations Dashboard')}"/>
+<style>
+    .kpi-card {
+        display: flex;
+        flex-direction: column;
+        padding: 10px 12px;
+    }
+    .kpi-card .kpi-header {
+        margin-bottom: 4px;
+    }
+    .kpi-card .kpi-body {
+        flex: 0 0 auto;
+    }
+    .kpi-card .kpi-footer {
+        flex-shrink: 0;
+        margin-top: 6px;
+        min-height: 1rem;
+        display: flex;
+        align-items: flex-end;
+    }
+</style>
+</head>
+<body class="opsconsole-app bg-background font-body-md text-on-background antialiased selection:bg-secondary-fixed-dim">
+<aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+<header class="h-16 fixed top-0 right-0 left-[240px] bg-surface border-b border-outline-variant flex items-center justify-between px-unit-xl w-full z-40">
+<div class="flex items-center gap-unit-lg flex-1">
+<h2 class="oc-page-title font-headline-sm text-headline-sm font-bold text-primary">System Dashboard</h2>
+<div class="relative w-full max-w-md ml-unit-xl">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 pl-10 pr-4 text-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all" placeholder="Search services, logs, or metrics..." type="search"/>
+</div>
+</div>
+<div class="flex items-center gap-unit-md">
+<th:block th:replace="~{fragments/stitch-theme :: theme-toggle}"></th:block>
+<div class="h-8 w-[1px] bg-outline-variant mx-unit-sm"></div>
+<button class="p-2 hover:bg-surface-container-low rounded-full transition-all text-on-surface-variant">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 hover:bg-surface-container-low rounded-full transition-all text-on-surface-variant">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="h-8 w-[1px] bg-outline-variant mx-unit-sm"></div>
+<div class="flex items-center gap-unit-sm">
+<div class="text-right">
+<p class="font-title-md text-body-sm text-on-surface leading-none">Alex Rivera</p>
+<p class="text-[10px] text-on-surface-variant font-medium">Sr. Site Reliability Engineer</p>
+</div>
+<img alt="User Avatar" class="w-9 h-9 rounded-full object-cover border border-outline-variant" data-alt="A professional close-up portrait of a male engineer in a bright, modern corporate office environment. The lighting is soft and natural, emphasizing a clean and sharp aesthetic. He wears a neutral-toned professional outfit, looking confident and approachable. The background is slightly blurred, showing hints of advanced technology and minimalist architectural design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2eB0_ynFJToPIPNeQY88YcXjeeLTwvGAagtmUiQgQhr202Y5fBSHcoNz7b0qjcKEI9H5lsnetzqn5bsrjVlXWp1GREf6Iqsmlu11EvFzQn0hEMBUsITQPM57sNhBwUvNl8IsHAHPnChlH1kosjpU9wi2vVBNDu-lM1ENR6B0AC8YlwSYF7j4tf1jscvn37SVf6HEhpCflzscKsw4VoHsUESiiGqz1eo3lXIU_MXJJISfWYptM4jKXkd7p_B1rHDPCSCFaURgdRRM"/>
+</div>
+</div>
+</header>
+<main class="ml-[240px] mt-16 p-unit-lg mr-[320px]">
+<div class="grid grid-cols-4 gap-gutter mb-unit-lg items-stretch">
+<div class="kpi-card bg-surface border border-outline-variant rounded-lg hover:shadow-sm transition-shadow">
+<div class="kpi-header flex justify-between items-center gap-2">
+<p class="text-on-surface-variant text-xs font-medium">Total Services</p>
+<span class="material-symbols-outlined text-secondary text-base shrink-0">layers</span>
+</div>
+<div class="kpi-body">
+<p class="text-2xl font-bold leading-none text-primary tabular-nums" th:text="${summary.total}">0</p>
+</div>
+<div class="kpi-footer">
+<div class="flex gap-1 w-full items-end h-5">
+<div class="w-1 h-2 bg-secondary/30 rounded-t"></div>
+<div class="w-1 h-4 bg-secondary/30 rounded-t"></div>
+<div class="w-1 h-3 bg-secondary/30 rounded-t"></div>
+<div class="w-1 h-5 bg-secondary/30 rounded-t"></div>
+<div class="w-1 h-2 bg-secondary/30 rounded-t"></div>
+<div class="w-1 h-5 bg-secondary/60 rounded-t"></div>
+<div class="w-1 h-4 bg-secondary/60 rounded-t"></div>
+<div class="w-1 h-5 bg-secondary rounded-t"></div>
+</div>
+</div>
+</div>
+<div class="kpi-card bg-surface border border-outline-variant rounded-lg hover:shadow-sm transition-shadow">
+<div class="kpi-header flex justify-between items-center gap-2">
+<p class="text-on-surface-variant text-xs font-medium">Health Rate</p>
+<span class="material-symbols-outlined text-green-600 text-base shrink-0">check_circle</span>
+</div>
+<div class="kpi-body">
+<p class="text-2xl font-bold leading-none text-primary tabular-nums">
+    <span th:text="${#numbers.formatDecimal(summary.upPercent(), 0, 1)}">0</span><span class="text-[0.85em]">%</span>
+</p>
+<p class="text-[11px] text-on-surface-variant mt-0.5 leading-tight whitespace-nowrap"
+   th:text="|${summary.up} of ${summary.total} up|">0 of 0 up</p>
+</div>
+<div class="kpi-footer">
+<div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-green-500 transition-all duration-300"
+     th:style="|width: ${summary.upPercent()}%|"></div>
+</div>
+</div>
+</div>
+<div class="kpi-card bg-surface border border-outline-variant rounded-lg hover:shadow-sm transition-shadow">
+<div class="kpi-header flex justify-between items-center gap-2">
+<p class="text-on-surface-variant text-xs font-medium">Active Incidents</p>
+<span class="material-symbols-outlined text-error text-base shrink-0">warning</span>
+</div>
+<div class="kpi-body">
+<div class="flex items-baseline gap-2">
+<p class="text-2xl font-bold leading-none text-primary tabular-nums">4</p>
+<span class="flex items-center text-error text-[11px] font-medium">
+<span class="material-symbols-outlined text-[12px]">trending_up</span>
+<span>+2</span>
+</span>
+</div>
+</div>
+<div class="kpi-footer">
+<div class="flex gap-1.5">
+<div class="w-2 h-2 rounded-full bg-error"></div>
+<div class="w-2 h-2 rounded-full bg-error/30"></div>
+<div class="w-2 h-2 rounded-full bg-error/30"></div>
+<div class="w-2 h-2 rounded-full bg-error/30"></div>
+</div>
+</div>
+</div>
+<div class="kpi-card bg-surface border border-outline-variant rounded-lg hover:shadow-sm transition-shadow">
+<div class="kpi-header flex justify-between items-center gap-2">
+<p class="text-on-surface-variant text-xs font-medium">API Success</p>
+<span class="material-symbols-outlined text-secondary-container text-base shrink-0">bolt</span>
+</div>
+<div class="kpi-body">
+<p class="text-2xl font-bold leading-none text-primary tabular-nums">99.94<span class="text-[0.85em]">%</span></p>
+<p class="text-[11px] text-on-surface-variant mt-0.5 leading-tight">Stable</p>
+</div>
+<div class="kpi-footer h-5">
+<svg class="w-full h-full" viewbox="0 0 100 20">
+<path d="M0 10 Q 25 2, 50 10 T 100 8" fill="none" stroke="#0070ea" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-gutter mb-unit-lg">
+<div class="col-span-8 bg-surface border border-outline-variant rounded-lg p-unit-lg">
+<div class="flex justify-between items-center mb-unit-lg">
+<div>
+<h4 class="font-title-lg text-title-lg text-primary">Services Up</h4>
+<p class="text-body-sm text-on-surface-variant">
+    Number of services UP over time (last 24h) —
+    <span class="font-medium text-on-surface tabular-nums" th:text="|${servicesUpChart.currentUp} of ${servicesUpChart.totalServices} now|">0 of 0 now</span>
+</p>
+</div>
+</div>
+<div class="h-64 w-full relative flex gap-2">
+<div class="flex flex-col justify-between text-[10px] text-on-surface-variant tabular-nums py-1 shrink-0 w-4 text-right">
+<span th:text="${servicesUpChart.maxY}">4</span>
+<span th:text="${servicesUpChart.maxY / 2}">2</span>
+<span>0</span>
+</div>
+<div class="flex-1 relative min-w-0">
+<div class="absolute inset-0 flex items-end">
+<svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
+<defs>
+<linearGradient id="servicesUpGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#0059bb" stop-opacity="0.2"></stop>
+<stop offset="100%" stop-color="#0059bb" stop-opacity="0"></stop>
+</linearGradient>
+</defs>
+<path th:attr="d=${servicesUpChart.areaPath}" fill="url(#servicesUpGradient)"></path>
+<path th:attr="d=${servicesUpChart.linePath}" fill="none" stroke="#0059bb" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+<circle th:each="pt : ${servicesUpChart.points}"
+        th:attr="cx=${pt.x},cy=${pt.y},title=${pt.timeLabel + ': ' + pt.upCount + ' up'}"
+        r="1.8" fill="#0059bb" stroke="#ffffff" stroke-width="0.5" vector-effect="non-scaling-stroke"/>
+</svg>
+</div>
+<div class="absolute inset-0 grid grid-rows-4 pointer-events-none">
+<div class="border-b border-outline-variant/30"></div>
+<div class="border-b border-outline-variant/30"></div>
+<div class="border-b border-outline-variant/30"></div>
+<div class="border-b border-outline-variant/30"></div>
+</div>
+</div>
+</div>
+<div class="flex justify-between mt-unit-sm text-label-sm text-on-surface-variant pl-6">
+<span th:each="label : ${servicesUpChart.xAxisLabels}" th:text="${label}">00:00</span>
+</div>
+</div>
+<div class="col-span-4 bg-surface border border-outline-variant rounded-lg flex flex-col">
+<div class="p-unit-md border-b border-outline-variant flex justify-between items-center">
+<h4 class="font-title-lg text-title-lg text-primary">Recent Incidents</h4>
+<button class="text-secondary font-label-md text-label-md hover:underline">View All</button>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar">
+<table class="w-full text-left">
+<thead class="bg-surface-container-low sticky top-0">
+<tr>
+<th class="px-unit-md py-3 text-[10px] uppercase font-bold text-on-surface-variant">Service</th>
+<th class="px-unit-md py-3 text-[10px] uppercase font-bold text-on-surface-variant">Sev</th>
+<th class="px-unit-md py-3 text-[10px] uppercase font-bold text-on-surface-variant">Time</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="hover:bg-surface-container-lowest cursor-pointer group">
+<td class="px-unit-md py-3">
+<p class="font-body-sm font-medium text-primary">auth-service-v2</p>
+<p class="text-[10px] text-on-surface-variant">ID: INC-9821</p>
+</td>
+<td class="px-unit-md py-3">
+<span class="px-2 py-0.5 rounded-full bg-error/10 text-error text-[10px] font-bold">P1</span>
+</td>
+<td class="px-unit-md py-3 text-label-sm text-on-surface-variant">2m ago</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest cursor-pointer">
+<td class="px-unit-md py-3">
+<p class="font-body-sm font-medium text-primary">payment-gateway</p>
+<p class="text-[10px] text-on-surface-variant">ID: INC-9819</p>
+</td>
+<td class="px-unit-md py-3">
+<span class="px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 text-[10px] font-bold">P2</span>
+</td>
+<td class="px-unit-md py-3 text-label-sm text-on-surface-variant">14m ago</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest cursor-pointer">
+<td class="px-unit-md py-3">
+<p class="font-body-sm font-medium text-primary">search-indexer</p>
+<p class="text-[10px] text-on-surface-variant">ID: INC-9812</p>
+</td>
+<td class="px-unit-md py-3">
+<span class="px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-[10px] font-bold">P3</span>
+</td>
+<td class="px-unit-md py-3 text-label-sm text-on-surface-variant">1h ago</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest cursor-pointer">
+<td class="px-unit-md py-3">
+<p class="font-body-sm font-medium text-primary">user-profile-db</p>
+<p class="text-[10px] text-on-surface-variant">ID: INC-9801</p>
+</td>
+<td class="px-unit-md py-3">
+<span class="px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 text-[10px] font-bold">P2</span>
+</td>
+<td class="px-unit-md py-3 text-label-sm text-on-surface-variant">2h ago</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-gutter">
+<div class="col-span-7 bg-surface border border-outline-variant rounded-lg p-unit-lg">
+<div class="flex justify-between items-center mb-unit-lg">
+<h4 class="font-title-lg text-title-lg text-primary">API Response Time (ms)</h4>
+<span class="flex items-center gap-2 text-label-sm text-on-surface-variant">
+<span class="w-3 h-3 rounded-full bg-secondary"></span> Avg: 124ms
+                    </span>
+</div>
+<div class="h-48 flex items-end gap-1">
+<div class="flex-1 bg-secondary/10 rounded-t h-1/2"></div>
+<div class="flex-1 bg-secondary/15 rounded-t h-2/3"></div>
+<div class="flex-1 bg-secondary/20 rounded-t h-1/3"></div>
+<div class="flex-1 bg-secondary/25 rounded-t h-3/4"></div>
+<div class="flex-1 bg-secondary/30 rounded-t h-1/2"></div>
+<div class="flex-1 bg-secondary/40 rounded-t h-4/5"></div>
+<div class="flex-1 bg-secondary/50 rounded-t h-2/3"></div>
+<div class="flex-1 bg-secondary/60 rounded-t h-full"></div>
+<div class="flex-1 bg-secondary/70 rounded-t h-3/4"></div>
+<div class="flex-1 bg-secondary/80 rounded-t h-1/2"></div>
+<div class="flex-1 bg-secondary/90 rounded-t h-3/4"></div>
+<div class="flex-1 bg-secondary rounded-t h-5/6"></div>
+</div>
+</div>
+<div class="col-span-5 bg-surface border border-outline-variant rounded-lg p-unit-lg">
+<h4 class="font-title-lg text-title-lg text-primary mb-unit-lg">Load Heatmap by Endpoint</h4>
+<div class="grid grid-cols-8 grid-rows-4 gap-1">
+<div class="aspect-square rounded-sm bg-green-500/20" title="/v1/login"></div>
+<div class="aspect-square rounded-sm bg-green-500/40"></div>
+<div class="aspect-square rounded-sm bg-green-500/10"></div>
+<div class="aspect-square rounded-sm bg-green-500/60"></div>
+<div class="aspect-square rounded-sm bg-orange-500/80"></div>
+<div class="aspect-square rounded-sm bg-green-500/20"></div>
+<div class="aspect-square rounded-sm bg-green-500/10"></div>
+<div class="aspect-square rounded-sm bg-green-500/30"></div>
+<div class="aspect-square rounded-sm bg-green-500/10"></div>
+<div class="aspect-square rounded-sm bg-green-500/20"></div>
+<div class="aspect-square rounded-sm bg-green-500/50"></div>
+<div class="aspect-square rounded-sm bg-green-500/30"></div>
+<div class="aspect-square rounded-sm bg-green-500/20"></div>
+<div class="aspect-square rounded-sm bg-green-500/10"></div>
+<div class="aspect-square rounded-sm bg-red-500/90"></div>
+<div class="aspect-square rounded-sm bg-green-500/20"></div>
+<div class="aspect-square rounded-sm bg-green-500/40"></div>
+<div class="aspect-square rounded-sm bg-green-500/30"></div>
+<div class="aspect-square rounded-sm bg-green-500/10"></div>
+<div class="aspect-square rounded-sm bg-orange-500/50"></div>
+<div class="aspect-square rounded-sm bg-green-500/20"></div>
+<div class="aspect-square rounded-sm bg-green-500/10"></div>
+<div class="aspect-square rounded-sm bg-green-500/40"></div>
+<div class="aspect-square rounded-sm bg-green-500/10"></div>
+<div class="aspect-square rounded-sm bg-green-500/10"></div>
+<div class="aspect-square rounded-sm bg-green-500/10"></div>
+<div class="aspect-square rounded-sm bg-green-500/10"></div>
+<div class="aspect-square rounded-sm bg-green-500/10"></div>
+<div class="aspect-square rounded-sm bg-green-500/10"></div>
+<div class="aspect-square rounded-sm bg-green-500/10"></div>
+<div class="aspect-square rounded-sm bg-green-500/10"></div>
+<div class="aspect-square rounded-sm bg-green-500/10"></div>
+</div>
+<div class="mt-unit-lg flex items-center justify-between text-label-sm text-on-surface-variant">
+<span>Cluster Efficiency: 94.2%</span>
+<div class="flex gap-1">
+<div class="w-3 h-3 rounded-sm bg-green-500/10"></div>
+<div class="w-3 h-3 rounded-sm bg-green-500/50"></div>
+<div class="w-3 h-3 rounded-sm bg-orange-500/80"></div>
+<div class="w-3 h-3 rounded-sm bg-red-500/90"></div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<aside class="w-[320px] h-[calc(100vh-64px)] fixed top-16 right-0 bg-surface border-l border-outline-variant flex flex-col z-30">
+<div class="p-unit-lg border-b border-outline-variant flex items-center justify-between">
+<h3 class="font-title-lg text-title-lg text-primary">System Activity</h3>
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+</div>
+<div class="flex-1 overflow-y-auto p-unit-lg space-y-unit-lg custom-scrollbar">
+<p th:if="${#lists.isEmpty(activities)}" class="text-body-sm text-on-surface-variant text-center py-8">
+No recent activity yet. Events appear when users sign in, services change health status, or roles are updated.
+</p>
+<div th:each="event, iterStat : ${activities}" class="flex gap-unit-md">
+<div class="mt-1 flex flex-col items-center">
+<div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0" th:classappend="${event.iconBgClass}">
+<span class="material-symbols-outlined text-base" th:classappend="${event.iconColorClass}" th:text="${event.icon}">info</span>
+</div>
+<div th:unless="${iterStat.last}" class="w-px flex-1 bg-outline-variant my-2 min-h-[12px]"></div>
+</div>
+<div class="min-w-0 pb-1">
+<p class="font-body-sm text-primary">
+<span th:text="${event.messagePrefix}">Prefix</span>
+<span class="font-semibold" th:text="${event.messageHighlight}">Highlight</span><span th:text="${event.messageSuffix}">Suffix</span>
+</p>
+<p class="text-[10px] text-on-surface-variant mt-1 tabular-nums">
+<time th:datetime="${#temporals.format(event.occurredAt, 'yyyy-MM-dd''T''HH:mm:ssXXX')}"
+      th:text="${#temporals.format(event.occurredAt, 'MMM d yyyy, HH:mm')}">May 29 2026, 14:30</time>
+<span th:if="${event.detail != null and !event.detail.isEmpty()}"> • </span>
+<span th:text="${event.detail}">Detail</span>
+</p>
+</div>
+</div>
+</div>
+</aside>
+<script>
+        // Simple micro-interaction for KPI cards
+        document.querySelectorAll('.hover\\:shadow-sm').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-2px)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+            });
+            card.style.transition = 'transform 0.2s ease, box-shadow 0.2s ease';
+        });
+
+        // Search bar focus effect
+        const searchInput = document.querySelector('input[type="search"]');
+        if (searchInput) {
+            searchInput.addEventListener('focus', () => {
+                searchInput.parentElement.classList.add('scale-[1.02]');
+            });
+            searchInput.addEventListener('blur', () => {
+                searchInput.parentElement.classList.remove('scale-[1.02]');
+            });
+            searchInput.parentElement.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        }
+    </script>
+</body></html>
+

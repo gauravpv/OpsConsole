@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
+<head>
+<th:block th:replace="~{fragments/head :: head(pageTitle='System Administration')}"/>
+<style>
+.confirmation-overlay { backdrop-filter: blur(4px); transition: opacity 0.3s ease; }
+.config-drawer { transition: transform 0.3s ease, opacity 0.3s ease; }
+</style>
+</head>
+<body class="opsconsole-app bg-background text-on-background font-body-md overflow-hidden">
+<div class="flex h-screen w-full">
+<aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+<main class="ml-[240px] flex-1 flex flex-col h-screen overflow-hidden bg-background">
+<header class="h-16 flex items-center justify-between px-unit-xl w-full bg-surface border-b border-outline-variant z-40">
+<div class="flex items-center gap-unit-lg">
+<h1 class="oc-page-title font-headline-sm text-headline-sm font-bold text-primary">System Administration</h1>
+</div>
+<div class="flex items-center gap-unit-md">
+<th:block th:replace="~{fragments/stitch-theme :: theme-toggle}"></th:block>
+</div>
+</header>
+<div class="flex-1 overflow-y-auto p-unit-xl space-y-unit-lg custom-scrollbar">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-unit-md">
+<div class="flex flex-col gap-unit-xs">
+<span class="font-label-md text-label-md text-secondary-fixed-dim uppercase tracking-wider">Operational Control</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Service Administration</h2>
+</div>
+<div class="flex gap-unit-md w-full md:w-auto" th:if="${!#lists.isEmpty(servers)}">
+<div class="flex flex-col gap-1 w-full md:w-56">
+<label class="font-label-sm text-label-sm text-on-surface-variant px-1" for="serverSelect">Server</label>
+<select class="w-full px-3 py-2 bg-surface-container-low text-on-surface border border-outline-variant rounded-lg font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-secondary/25" id="serverSelect">
+<option th:each="server : ${servers}" th:selected="${selectedService != null and selectedService.serverId == server.id}" th:text="${server.name + ' (' + server.host + ')'}" th:value="${server.id}"></option>
+</select>
+</div>
+<div class="flex flex-col gap-1 w-full md:w-64">
+<label class="font-label-sm text-label-sm text-on-surface-variant px-1" for="serviceSelect">Active Service</label>
+<select class="w-full px-3 py-2 bg-surface-container-low text-on-surface border border-outline-variant rounded-lg font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-secondary/25" id="serviceSelect">
+<optgroup th:each="server : ${servers}" th:if="${selectedService == null or selectedService.serverId == server.id}" th:label="${server.name}">
+<option th:each="svc : ${server.services}" th:selected="${selectedService != null and selectedService.id == svc.id}" th:text="${svc.name + ' :' + svc.port}" th:value="${svc.id}"></option>
+</optgroup>
+</select>
+</div>
+</div>
+</div>
+<div class="rounded-xl border border-outline-variant bg-surface-container-low p-unit-lg text-on-surface-variant font-body-md" th:if="${#lists.isEmpty(servers)}">
+No managed servers configured. Add entries under <code class="text-secondary-fixed-dim">opsconsole.admin.servers</code> in application.yml.
+</div>
+<div class="grid grid-cols-12 gap-unit-lg" id="servicePanel" th:if="${selectedService != null}">
+<div class="col-span-12 lg:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg flex flex-col gap-unit-lg overflow-hidden relative">
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+<div class="flex justify-between items-center border-b border-outline-variant pb-unit-md">
+<div class="flex items-center gap-unit-md">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary-fixed-dim text-3xl">dns</span>
+</div>
+<div>
+<h3 class="font-title-lg text-title-lg text-on-surface" id="serviceName" th:text="${selectedService.name}">Service</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant" id="serviceDescription" th:text="${selectedService.description}">Description</p>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-label-md text-label-md border" id="statusBadge" th:classappend="${selectedService.portUp} ? ' bg-green-900/20 text-[#4ade80] border-[#4ade80]/30' : ' bg-red-900/20 text-red-400 border-red-400/30'">
+<span class="w-2 h-2 rounded-full animate-pulse" id="statusDot" th:classappend="${selectedService.portUp} ? ' bg-[#4ade80]' : ' bg-red-400'"></span>
+<span id="statusLabel" th:text="${selectedService.portUp} ? 'Port responding' : 'Port not responding'">Status</span>
+</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1" id="serviceHost" th:text="${selectedService.serverHost + ':' + selectedService.port}">host:port</span>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-unit-lg">
+<div class="flex flex-col gap-unit-xs">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Server</span>
+<span class="font-headline-sm text-headline-sm text-on-surface" id="serverName" th:text="${selectedService.serverName}">server</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant" th:text="${selectedService.category}">category</p>
+</div>
+<div class="flex flex-col gap-unit-xs">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Port</span>
+<span class="font-headline-sm text-headline-sm text-on-surface" id="servicePort" th:text="${selectedService.port}">8080</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">TCP probe (2s timeout)</p>
+</div>
+<div class="flex flex-col gap-unit-xs">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Properties</span>
+<span class="font-body-sm text-body-sm text-on-surface truncate" id="propertiesPath" th:text="${selectedService.propertiesPath}">/opt/...</span>
+</div>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-4 bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg flex flex-col gap-unit-md">
+<h3 class="font-title-md text-title-md text-on-surface border-b border-outline-variant pb-unit-sm">Remote Scripts</h3>
+<div class="space-y-unit-sm flex-1 font-body-sm text-body-sm text-on-surface-variant">
+<div><span class="text-on-surface-variant">Start:</span> <span class="text-on-surface break-all" th:text="${selectedService.startScript}"></span></div>
+<div><span class="text-on-surface-variant">Stop:</span> <span class="text-on-surface break-all" th:text="${selectedService.stopScript}"></span></div>
+<div><span class="text-on-surface-variant">Restart:</span> <span class="text-on-surface break-all" th:text="${selectedService.restartScript}"></span></div>
+</div>
+</div>
+<div class="col-span-12 bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg shadow-sm">
+<div class="flex flex-col md:flex-row items-center gap-unit-md">
+<div class="flex-1 flex flex-col">
+<h3 class="font-title-md text-title-md text-on-surface">Service Control Cluster</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Administrative overrides for the selected service (SSH).</p>
+</div>
+<div class="flex flex-wrap gap-unit-md w-full md:w-auto">
+<button class="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-[#166534] hover:bg-[#15803d] text-white rounded-lg font-title-md text-title-md transition-all shadow-lg shadow-green-900/40 active:scale-95 border border-[#4ade80]/20" id="btnStart" type="button">
+<span class="material-symbols-outlined">play_arrow</span> Start
+</button>
+<button class="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-[#991b1b] hover:bg-[#b91c1c] text-white rounded-lg font-title-md text-title-md transition-all shadow-lg shadow-red-900/40 active:scale-95 border border-[#ef4444]/20" id="btnStop" type="button">
+<span class="material-symbols-outlined">stop</span> Stop
+</button>
+<button class="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-[#92400e] hover:bg-[#b45309] text-white rounded-lg font-title-md text-title-md transition-all shadow-lg shadow-amber-900/40 active:scale-95 border border-[#f59e0b]/20" id="btnRestart" type="button">
+<span class="material-symbols-outlined">restart_alt</span> Restart
+</button>
+<button class="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 border border-outline-variant hover:bg-surface-container-low text-on-surface rounded-lg font-title-md text-title-md transition-all active:scale-95" id="btnConfig" type="button">
+<span class="material-symbols-outlined">settings_ethernet</span> View Config
+</button>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-unit-md hidden" id="controlMessage"></p>
+</div>
+<div class="col-span-12 bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden flex flex-col">
+<div class="px-unit-lg py-unit-md bg-surface-container-high/30 border-b border-outline-variant flex justify-between items-center">
+<h3 class="font-label-md text-label-md font-bold text-on-surface-variant uppercase tracking-wider">Recent Admin Actions</h3>
+<button class="text-secondary-fixed-dim font-label-md text-label-md hover:underline flex items-center gap-1" id="refreshActionsBtn" type="button">
+<span class="material-symbols-outlined text-sm">refresh</span> Refresh
+</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="border-b border-outline-variant bg-surface-container-low">
+<tr>
+<th class="px-unit-lg py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Operator</th>
+<th class="px-unit-lg py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Action</th>
+<th class="px-unit-lg py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Impact</th>
+<th class="px-unit-lg py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Timestamp</th>
+<th class="px-unit-lg py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant" id="actionsBody">
+<tr class="hover:bg-surface-container-low/50 transition-colors h-[48px]" th:each="log : ${recentActions}">
+<td class="px-unit-lg py-3">
+<span class="font-body-md text-body-md text-on-surface" th:text="${log.actorDisplayName}">operator</span>
+</td>
+<td class="px-unit-lg py-3">
+<span class="font-body-md text-body-md font-medium text-on-surface" th:text="${T(com.opsconsole.admin.AdminActionLabels).label(log.action)}">Action</span>
+</td>
+<td class="px-unit-lg py-3">
+<span class="font-body-sm text-body-sm text-on-surface-variant" th:text="${log.serviceName}">service</span>
+</td>
+<td class="px-unit-lg py-3 font-label-md text-label-md text-on-surface-variant whitespace-nowrap" th:text="${actionTimeFmt.format(log.createdAt)}">time</td>
+<td class="px-unit-lg py-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full font-label-sm text-label-sm border" th:classappend="${log.status.name() == 'SUCCESS'} ? ' bg-green-900/30 text-[#4ade80] border-[#4ade80]/20' : ' bg-red-900/30 text-red-400 border-red-400/20'" th:text="${log.status.name() == 'SUCCESS'} ? 'Success' : 'Failed'">Success</span>
+</td>
+</tr>
+<tr th:if="${#lists.isEmpty(recentActions)}">
+<td class="px-unit-lg py-6 text-on-surface-variant font-body-md" colspan="5">No admin actions recorded yet.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<div class="fixed inset-0 z-[60] flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300" id="confirmationOverlay">
+<div class="absolute inset-0 bg-primary/80 confirmation-overlay"></div>
+<div class="relative w-full max-w-md bg-surface-container-lowest rounded-xl shadow-2xl p-unit-xl mx-4 transform translate-y-4 transition-transform duration-300 border border-outline-variant" id="confirmationBox">
+<div class="flex items-start gap-unit-md">
+<div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" id="confirmIconContainer">
+<span class="material-symbols-outlined text-3xl" id="confirmIcon">warning</span>
+</div>
+<div class="flex-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface" id="confirmTitle">Confirm Action</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2" id="confirmText">Are you sure?</p>
+</div>
+</div>
+<div class="mt-unit-xl flex justify-end gap-unit-md">
+<button class="px-6 py-2 border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:bg-surface-container-low" type="button" onclick="closeConfirmation()">Cancel</button>
+<button class="px-6 py-2 rounded-lg font-label-md text-label-md text-white shadow-lg active:scale-95 transition-all" id="confirmBtn" type="button">Confirm Execution</button>
+</div>
+</div>
+</div>
+<div class="fixed inset-0 z-[70] flex items-stretch justify-end pointer-events-none opacity-0 transition-opacity duration-300" id="configOverlay">
+<div class="absolute inset-0 bg-primary/60 confirmation-overlay" onclick="closeConfigDrawer()"></div>
+<div class="relative w-full max-w-2xl bg-surface-container-lowest border-l border-outline-variant shadow-2xl flex flex-col config-drawer translate-x-full pointer-events-auto" id="configDrawer">
+<div class="px-unit-lg py-unit-md border-b border-outline-variant flex justify-between items-center">
+<h3 class="font-title-md text-title-md text-on-surface">Service Properties</h3>
+<button class="p-2 rounded-lg hover:bg-surface-container-low" onclick="closeConfigDrawer()" type="button"><span class="material-symbols-outlined">close</span></button>
+</div>
+<div class="p-unit-lg flex-1 flex flex-col gap-unit-md overflow-hidden">
+<p class="font-body-sm text-body-sm text-on-surface-variant" id="configDiffHint"></p>
+<textarea class="flex-1 min-h-[320px] w-full p-unit-md bg-surface-container-low border border-outline-variant rounded-lg font-mono text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-secondary/25 resize-none" id="configEditor" spellcheck="false"></textarea>
+<p class="font-body-sm text-body-sm text-error hidden" id="configError"></p>
+</div>
+<div class="px-unit-lg py-unit-md border-t border-outline-variant flex justify-end gap-unit-md">
+<button class="px-6 py-2 border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:bg-surface-container-low" onclick="closeConfigDrawer()" type="button">Cancel</button>
+<button class="px-6 py-2 rounded-lg font-label-md text-label-md text-white bg-secondary hover:bg-secondary/90 shadow-lg active:scale-95 transition-all" id="configSaveBtn" type="button">Save Properties</button>
+</div>
+</div>
+</div>
+<script th:inline="javascript">
+    const servers = /*[[${servers}]]*/ [];
+    let selectedServiceId = /*[[${selectedServiceId}]]*/ null;
+    let pendingAction = null;
+    let originalConfig = '';
+
+    const serverSelect = document.getElementById('serverSelect');
+    const serviceSelect = document.getElementById('serviceSelect');
+    const controlMessage = document.getElementById('controlMessage');
+
+    function currentServiceName() {
+        const opt = serviceSelect?.selectedOptions?.[0];
+        return opt ? opt.textContent.split(':')[0].trim() : 'this service';
+    }
+
+    function rebuildServiceOptions(serverId, keepServiceId) {
+        if (!serviceSelect) return;
+        serviceSelect.innerHTML = '';
+        const server = servers.find(s => String(s.id) === String(serverId));
+        if (!server || !server.services?.length) return;
+        server.services.forEach(svc => {
+            const opt = document.createElement('option');
+            opt.value = svc.id;
+            opt.textContent = svc.name + ' :' + svc.port;
+            if (keepServiceId && String(svc.id) === String(keepServiceId)) opt.selected = true;
+            serviceSelect.appendChild(opt);
+        });
+        if (!serviceSelect.value && server.services.length) {
+            serviceSelect.value = server.services[0].id;
+        }
+    }
+
+    function navigateSelection() {
+        const serverId = serverSelect?.value;
+        const serviceId = serviceSelect?.value;
+        if (serverId && serviceId) {
+            window.location.href = '/admin?serverId=' + encodeURIComponent(serverId) + '&serviceId=' + encodeURIComponent(serviceId);
+        }
+    }
+
+    serverSelect?.addEventListener('change', () => {
+        rebuildServiceOptions(serverSelect.value, null);
+        navigateSelection();
+    });
+    serviceSelect?.addEventListener('change', navigateSelection);
+
+    function showMessage(text, isError) {
+        if (!controlMessage) return;
+        controlMessage.textContent = text;
+        controlMessage.classList.remove('hidden');
+        controlMessage.classList.toggle('text-error', !!isError);
+        controlMessage.classList.toggle('text-on-surface-variant', !isError);
+    }
+
+    async function apiPost(path) {
+        const res = await fetch(path, { method: 'POST', headers: { 'Accept': 'application/json' } });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(body.message || res.statusText);
+        return body;
+    }
+
+    async function runControl(action) {
+        if (!selectedServiceId) return;
+        try {
+            const result = await apiPost('/api/admin/services/' + selectedServiceId + '/' + action);
+            showMessage(result.message || (action + ' completed'), false);
+            await refreshServiceDetail();
+            await refreshActions();
+        } catch (err) {
+            showMessage(err.message || 'Request failed', true);
+        }
+    }
+
+    async function refreshServiceDetail() {
+        if (!selectedServiceId) return;
+        const res = await fetch('/api/admin/services/' + selectedServiceId);
+        if (!res.ok) return;
+        const svc = await res.json();
+        document.getElementById('serviceName').textContent = svc.name;
+        document.getElementById('serviceDescription').textContent = svc.description || '';
+        document.getElementById('serverName').textContent = svc.serverName;
+        document.getElementById('servicePort').textContent = svc.port;
+        document.getElementById('serviceHost').textContent = svc.serverHost + ':' + svc.port;
+        document.getElementById('propertiesPath').textContent = svc.propertiesPath;
+        const badge = document.getElementById('statusBadge');
+        const dot = document.getElementById('statusDot');
+        const label = document.getElementById('statusLabel');
+        if (svc.portUp) {
+            badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-label-md text-label-md border bg-green-900/20 text-[#4ade80] border-[#4ade80]/30';
+            dot.className = 'w-2 h-2 rounded-full animate-pulse bg-[#4ade80]';
+            label.textContent = 'Port responding';
+        } else {
+            badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-label-md text-label-md border bg-red-900/20 text-red-400 border-red-400/30';
+            dot.className = 'w-2 h-2 rounded-full animate-pulse bg-red-400';
+            label.textContent = 'Port not responding';
+        }
+    }
+
+    async function refreshActions() {
+        const res = await fetch('/api/admin/actions?limit=20');
+        if (!res.ok) return;
+        const rows = await res.json();
+        const tbody = document.getElementById('actionsBody');
+        if (!tbody) return;
+        if (!rows.length) {
+            tbody.innerHTML = '<tr><td colspan="5" class="px-unit-lg py-6 text-on-surface-variant font-body-md">No admin actions recorded yet.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = rows.map(row => {
+            const ok = row.status === 'SUCCESS';
+            const statusClass = ok ? 'bg-green-900/30 text-[#4ade80] border-[#4ade80]/20' : 'bg-red-900/30 text-red-400 border-red-400/20';
+            const when = row.createdAt ? new Date(row.createdAt).toLocaleString() : '';
+            return `<tr class="hover:bg-surface-container-low/50 transition-colors h-[48px]">
+                <td class="px-unit-lg py-3"><span class="font-body-md text-on-surface">${escapeHtml(row.actorDisplayName)}</span></td>
+                <td class="px-unit-lg py-3"><span class="font-body-md font-medium text-on-surface">${escapeHtml(row.action)}</span></td>
+                <td class="px-unit-lg py-3"><span class="font-body-sm text-on-surface-variant">${escapeHtml(row.serviceName)}</span></td>
+                <td class="px-unit-lg py-3 font-label-md text-on-surface-variant whitespace-nowrap">${escapeHtml(when)}</td>
+                <td class="px-unit-lg py-3"><span class="inline-flex items-center px-2 py-0.5 rounded-full font-label-sm border ${statusClass}">${ok ? 'Success' : 'Failed'}</span></td>
+            </tr>`;
+        }).join('');
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function triggerConfirmation(action) {
+        pendingAction = action;
+        const overlay = document.getElementById('confirmationOverlay');
+        const box = document.getElementById('confirmationBox');
+        const iconContainer = document.getElementById('confirmIconContainer');
+        const icon = document.getElementById('confirmIcon');
+        const title = document.getElementById('confirmTitle');
+        const text = document.getElementById('confirmText');
+        const btn = document.getElementById('confirmBtn');
+        const name = currentServiceName();
+
+        if (action === 'stop') {
+            title.innerText = 'Stop Service?';
+            text.innerText = 'Stop ' + name + '? Active connections may be interrupted.';
+            icon.innerText = 'report';
+            iconContainer.className = 'w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 bg-red-900/30 text-red-400';
+            btn.className = 'px-6 py-2 rounded-lg font-label-md text-label-md text-white shadow-lg bg-red-700 hover:bg-red-800 active:scale-95 transition-all';
+        } else if (action === 'restart') {
+            title.innerText = 'Restart Service?';
+            text.innerText = 'Restart ' + name + '? This will briefly interrupt the service.';
+            icon.innerText = 'refresh';
+            iconContainer.className = 'w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 bg-amber-900/30 text-amber-400';
+            btn.className = 'px-6 py-2 rounded-lg font-label-md text-label-md text-white shadow-lg bg-amber-700 hover:bg-amber-800 active:scale-95 transition-all';
+        } else if (action === 'saveConfig') {
+            const before = (originalConfig || '').split('\n').length;
+            const after = (document.getElementById('configEditor').value || '').split('\n').length;
+            title.innerText = 'Save Properties?';
+            text.innerText = 'Save properties for ' + name + '? Lines: ' + before + ' → ' + after + '.';
+            icon.innerText = 'edit_note';
+            iconContainer.className = 'w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 bg-secondary/20 text-secondary-fixed-dim';
+            btn.className = 'px-6 py-2 rounded-lg font-label-md text-label-md text-white shadow-lg bg-secondary hover:bg-secondary/90 active:scale-95 transition-all';
+        }
+
+        btn.onclick = async () => {
+            closeConfirmation();
+            if (pendingAction === 'saveConfig') {
+                await saveConfig();
+            } else if (pendingAction) {
+                await runControl(pendingAction);
+            }
+            pendingAction = null;
+        };
+
+        overlay.classList.remove('pointer-events-none', 'opacity-0');
+        box.classList.remove('translate-y-4');
+    }
+
+    function closeConfirmation() {
+        const overlay = document.getElementById('confirmationOverlay');
+        const box = document.getElementById('confirmationBox');
+        overlay.classList.add('pointer-events-none', 'opacity-0');
+        box.classList.add('translate-y-4');
+    }
+
+    async function openConfigDrawer() {
+        if (!selectedServiceId) return;
+        const overlay = document.getElementById('configOverlay');
+        const drawer = document.getElementById('configDrawer');
+        const editor = document.getElementById('configEditor');
+        const err = document.getElementById('configError');
+        err.classList.add('hidden');
+        editor.value = 'Loading…';
+        overlay.classList.remove('pointer-events-none', 'opacity-0');
+        drawer.classList.remove('translate-x-full');
+        try {
+            const res = await fetch('/api/admin/services/' + selectedServiceId + '/properties');
+            const body = await res.json();
+            if (!res.ok) throw new Error(body.message || res.statusText);
+            originalConfig = body.content || '';
+            editor.value = originalConfig;
+            document.getElementById('configDiffHint').textContent = originalConfig.split('\n').length + ' lines loaded from remote host.';
+        } catch (e) {
+            editor.value = '';
+            err.textContent = e.message || 'Failed to load properties';
+            err.classList.remove('hidden');
+        }
+    }
+
+    function closeConfigDrawer() {
+        const overlay = document.getElementById('configOverlay');
+        const drawer = document.getElementById('configDrawer');
+        overlay.classList.add('pointer-events-none', 'opacity-0');
+        drawer.classList.add('translate-x-full');
+    }
+
+    async function saveConfig() {
+        const editor = document.getElementById('configEditor');
+        const err = document.getElementById('configError');
+        err.classList.add('hidden');
+        try {
+            const res = await fetch('/api/admin/services/' + selectedServiceId + '/properties', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({ content: editor.value })
+            });
+            const body = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(body.message || res.statusText);
+            originalConfig = editor.value;
+            closeConfigDrawer();
+            showMessage(body.message || 'Properties saved', false);
+            await refreshActions();
+        } catch (e) {
+            err.textContent = e.message || 'Save failed';
+            err.classList.remove('hidden');
+        }
+    }
+
+    document.getElementById('btnStart')?.addEventListener('click', () => runControl('start'));
+    document.getElementById('btnStop')?.addEventListener('click', () => triggerConfirmation('stop'));
+    document.getElementById('btnRestart')?.addEventListener('click', () => triggerConfirmation('restart'));
+    document.getElementById('btnConfig')?.addEventListener('click', openConfigDrawer);
+    document.getElementById('configSaveBtn')?.addEventListener('click', () => triggerConfirmation('saveConfig'));
+    document.getElementById('refreshActionsBtn')?.addEventListener('click', refreshActions);
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeConfirmation();
+            closeConfigDrawer();
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,468 @@
+﻿<!-- System Administration -->
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>System Admin | OpsConsole</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#e0e9f2",
+                        "on-secondary-fixed-variant": "#004493",
+                        "surface-tint": "#545e76",
+                        "inverse-surface": "#293138",
+                        "on-primary-fixed-variant": "#3c475d",
+                        "secondary-fixed-dim": "#adc7ff",
+                        "on-primary-container": "#828da7",
+                        "surface-dim": "#d2dbe4",
+                        "surface-container-lowest": "#ffffff",
+                        "primary": "#051125",
+                        "tertiary-fixed": "#fcdeb3",
+                        "on-secondary-container": "#fefcff",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "surface-bright": "#f6faff",
+                        "on-error-container": "#93000a",
+                        "on-surface": "#141d23",
+                        "on-tertiary-fixed": "#271901",
+                        "surface": "#f6faff",
+                        "tertiary-fixed-dim": "#dfc299",
+                        "on-surface-variant": "#45474d",
+                        "on-tertiary-container": "#a28963",
+                        "tertiary": "#1a0f00",
+                        "secondary-container": "#0070ea",
+                        "primary-fixed-dim": "#bbc6e2",
+                        "secondary-fixed": "#d8e2ff",
+                        "surface-container-highest": "#dbe4ed",
+                        "on-error": "#ffffff",
+                        "tertiary-container": "#332306",
+                        "on-primary-fixed": "#101b30",
+                        "surface-variant": "#dbe4ed",
+                        "inverse-primary": "#bbc6e2",
+                        "inverse-on-surface": "#e9f2fb",
+                        "surface-container-low": "#ecf5fe",
+                        "on-tertiary-fixed-variant": "#574423",
+                        "outline-variant": "#c5c6cd",
+                        "outline": "#75777d",
+                        "on-background": "#141d23",
+                        "primary-container": "#1b263b",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed": "#001a41",
+                        "surface-container": "#e6eff8",
+                        "background": "#f6faff",
+                        "secondary": "#0059bb",
+                        "primary-fixed": "#d7e2ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit-md": "16px",
+                        "sidebar-width": "240px",
+                        "container-max-width": "1440px",
+                        "unit-xs": "4px",
+                        "unit-sm": "8px",
+                        "margin-page": "32px",
+                        "unit-lg": "24px",
+                        "unit-xl": "32px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["JetBrains Mono"],
+                        "body-sm": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-md": ["JetBrains Mono"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "title-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "title-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}],
+                        "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label-md": ["13px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "title-md": ["16px", {"lineHeight": "24px", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "title-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #c5c6cd; border-radius: 10px; }
+        .confirmation-overlay { backdrop-filter: blur(4px); transition: opacity 0.3s ease; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md overflow-hidden">
+<!-- Global Layout Shell -->
+<div class="flex h-screen w-full">
+<!-- SideNavBar -->
+<aside class="w-[240px] h-screen fixed left-0 top-0 bg-primary dark:bg-primary border-r border-outline-variant flex flex-col py-unit-lg z-50">
+<div class="px-unit-lg mb-unit-xl">
+<div class="flex items-center gap-unit-sm">
+<img alt="OpsConsole Logo" class="w-8 h-8 rounded-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcfJ5LFQFbta5JdATZqnKuCz6_Lhu1wzAjhKZJyPGHqnOzUb5NIxB66puR6nY-lxb_KizYMIejr1mYvApGgq0wZG4go_mMzgw3Asm4346_uDtWFsvqUa2h3j8kz1gVW8z33lPduOqQEOlcxOIOfepXKYJQRkX-iy1Lri4koL1fB0zDZCQgjqGZAQk4giu8TyIJ7WUMSoaRDJiYM9e_YX3dvSpHkVOGUlW7GJRO3lLH5KdEru47pEOF18accPzSr9ow8_Ro6_KztJQ"/>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm font-bold text-on-primary">OpsConsole</span>
+<span class="font-label-sm text-label-sm text-on-primary/60">DevOps Platform</span>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1 overflow-y-auto custom-scrollbar">
+<div class="flex items-center gap-unit-md px-unit-lg py-unit-sm text-on-primary-container/70 hover:bg-primary-container transition-colors duration-200 cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</div>
+<div class="flex items-center gap-unit-md px-unit-lg py-unit-sm text-on-primary-container/70 hover:bg-primary-container transition-colors duration-200 cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">monitor_heart</span>
+<span class="font-body-md text-body-md">System Health</span>
+</div>
+<div class="flex items-center gap-unit-md px-unit-lg py-unit-sm text-on-primary-container/70 hover:bg-primary-container transition-colors duration-200 cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">api</span>
+<span class="font-body-md text-body-md">API Tester</span>
+</div>
+<div class="flex items-center gap-unit-md px-unit-lg py-unit-sm bg-secondary-container/20 text-secondary-fixed border-l-4 border-secondary-container cursor-pointer active:opacity-80 transition-colors duration-200">
+<span class="material-symbols-outlined">admin_panel_settings</span>
+<span class="font-body-md text-body-md">System Admin</span>
+</div>
+<div class="flex items-center gap-unit-md px-unit-lg py-unit-sm text-on-primary-container/70 hover:bg-primary-container transition-colors duration-200 cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">group</span>
+<span class="font-body-md text-body-md">User Admin</span>
+</div>
+<div class="flex items-center gap-unit-md px-unit-lg py-unit-sm text-on-primary-container/70 hover:bg-primary-container transition-colors duration-200 cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-body-md text-body-md">Logs Watch</span>
+</div>
+</nav>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-[240px] flex-1 flex flex-col h-screen overflow-hidden">
+<!-- TopNavBar -->
+<header class="h-16 flex items-center justify-between px-unit-xl w-full bg-surface border-b border-outline-variant z-40">
+<div class="flex items-center gap-unit-lg">
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary">System Dashboard</h1>
+<div class="relative w-64 group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-lg font-body-sm text-body-sm focus:outline-none focus:border-secondary transition-all" placeholder="Search systems..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-unit-md">
+<div class="p-2 rounded-full hover:bg-surface-container-low cursor-pointer transition-all relative">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</div>
+<div class="p-2 rounded-full hover:bg-surface-container-low cursor-pointer transition-all">
+<span class="material-symbols-outlined text-on-surface-variant">settings</span>
+</div>
+<div class="flex items-center gap-unit-sm pl-unit-md border-l border-outline-variant">
+<img alt="User Avatar" class="w-8 h-8 rounded-full border border-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_d5X1S3mrYzpRLhRK9_hSzhzpQYRrktLb8mrZSjsLjoAAIYcC7zpD6Pnnya4MUHhVCRYBfOVHF5vc7SAsFz49_b6z5fqtS1K-m7qHBIelCRZb2uVe2fu7Ddrg4AfKIELhC7ph5s15cb228l42zEBaAUyiiAddjtRtyxLFrO_GnWIoePeIPLtXda6dOHqtvcT-CnE0WMEOgyG5foRyRslfW452S7GT5imLAO2ffhJ0aaLbrmyEqwTOcit6lgF_Xp31hhILXH31ygw"/>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Admin User</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Super Admin</span>
+</div>
+</div>
+</div>
+</header>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto p-unit-xl space-y-unit-lg custom-scrollbar">
+<!-- Page Title & Selection -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-unit-md">
+<div class="flex flex-col gap-unit-xs">
+<span class="font-label-md text-label-md text-secondary uppercase tracking-wider">Operational Control</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Service Administration</h2>
+</div>
+<div class="flex gap-unit-md w-full md:w-auto">
+<div class="flex flex-col gap-1 w-full md:w-48">
+<label class="font-label-sm text-label-sm text-on-surface-variant px-1">Category</label>
+<select class="w-full px-3 py-2 bg-white border border-outline-variant rounded-lg font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-secondary/25">
+<option>Payment Services</option>
+<option>User Auth Core</option>
+<option>Data Analytics</option>
+<option>Asset Management</option>
+</select>
+</div>
+<div class="flex flex-col gap-1 w-full md:w-64">
+<label class="font-label-sm text-label-sm text-on-surface-variant px-1">Active Service</label>
+<select class="w-full px-3 py-2 bg-white border border-outline-variant rounded-lg font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-secondary/25">
+<option>Stripe-Gateway-V2</option>
+<option>PayPal-Internal-API</option>
+<option>Ledger-Consolidator</option>
+<option>Tax-Calculation-Service</option>
+</select>
+</div>
+</div>
+</div>
+<!-- Main Bento Layout -->
+<div class="grid grid-cols-12 gap-unit-lg">
+<!-- Detail Card (Left 8 cols) -->
+<div class="col-span-12 lg:col-span-8 bg-white border border-outline-variant rounded-xl p-unit-lg flex flex-col gap-unit-lg overflow-hidden relative">
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+<div class="flex justify-between items-center border-b border-outline-variant pb-unit-md">
+<div class="flex items-center gap-unit-md">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary text-3xl">payments</span>
+</div>
+<div>
+<h3 class="font-title-lg text-title-lg text-on-surface">Stripe-Gateway-V2</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Core Payment Processing Engine</p>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 text-[#28A745] font-label-md text-label-md">
+<span class="w-2 h-2 rounded-full bg-[#28A745] animate-pulse"></span>
+                                    Healthy &amp; Active
+                                </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1">Refreshed 2s ago</span>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-unit-lg">
+<div class="flex flex-col gap-unit-xs">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Current Version</span>
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-on-surface">v2.4.12-stable</span>
+<span class="material-symbols-outlined text-on-primary-fixed-variant text-sm cursor-pointer hover:text-secondary">history</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Deployed 4 days ago</p>
+</div>
+<div class="flex flex-col gap-unit-xs">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">System Uptime</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">99.98%</span>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden mt-1">
+<div class="bg-secondary h-full" style="width: 99.98%"></div>
+</div>
+</div>
+<div class="flex flex-col gap-unit-xs">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Running Since</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">14d 06h 22m</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Last restart: May 12, 14:00</p>
+</div>
+</div>
+</div>
+<!-- Right Card: Quick Health Metrics (Right 4 cols) -->
+<div class="col-span-12 lg:col-span-4 bg-white border border-outline-variant rounded-xl p-unit-lg flex flex-col gap-unit-md">
+<h3 class="font-title-md text-title-md text-on-surface border-b border-outline-variant pb-unit-sm">Live Infrastructure</h3>
+<div class="space-y-unit-md flex-1">
+<div class="flex justify-between items-center">
+<span class="font-body-md text-body-md text-on-surface-variant">Active Instances</span>
+<span class="font-label-md text-label-md font-bold px-2 py-0.5 bg-surface-container-high rounded text-primary">08 / 12</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body-md text-body-md text-on-surface-variant">CPU Usage</span>
+<span class="font-label-md text-label-md font-bold text-[#28A745]">42.5%</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body-md text-body-md text-on-surface-variant">Memory Load</span>
+<span class="font-label-md text-label-md font-bold text-[#f59e0b]">78.2%</span>
+</div>
+</div>
+<div class="pt-unit-md border-t border-outline-variant">
+<div class="h-24 w-full bg-surface-container-low rounded-lg flex items-end gap-1 px-2 pb-2 overflow-hidden">
+<!-- Sparkline Mockup -->
+<div class="bg-secondary/20 w-full rounded-t" style="height: 40%"></div>
+<div class="bg-secondary/20 w-full rounded-t" style="height: 55%"></div>
+<div class="bg-secondary/20 w-full rounded-t" style="height: 45%"></div>
+<div class="bg-secondary/40 w-full rounded-t" style="height: 70%"></div>
+<div class="bg-secondary/40 w-full rounded-t" style="height: 85%"></div>
+<div class="bg-secondary/30 w-full rounded-t" style="height: 60%"></div>
+<div class="bg-secondary w-full rounded-t" style="height: 95%"></div>
+</div>
+</div>
+</div>
+<!-- Action Bar (Full width) -->
+<div class="col-span-12 bg-white border border-outline-variant rounded-xl p-unit-lg shadow-sm">
+<div class="flex flex-col md:flex-row items-center gap-unit-md">
+<div class="flex-1 flex flex-col">
+<h3 class="font-title-md text-title-md text-on-surface">Service Control Cluster</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Administrative overrides for current active service.</p>
+</div>
+<div class="flex flex-wrap gap-unit-md w-full md:w-auto">
+<button class="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-[#28A745] hover:bg-[#218838] text-white rounded-lg font-title-md text-title-md transition-all shadow-lg shadow-green-900/10 active:scale-95">
+<span class="material-symbols-outlined">play_arrow</span>
+                                    Start
+                                </button>
+<button class="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-[#DC3545] hover:bg-[#c82333] text-white rounded-lg font-title-md text-title-md transition-all shadow-lg shadow-red-900/10 active:scale-95" onclick="triggerConfirmation('stop')">
+<span class="material-symbols-outlined">stop</span>
+                                    Stop
+                                </button>
+<button class="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-[#f59e0b] hover:bg-[#d97706] text-white rounded-lg font-title-md text-title-md transition-all shadow-lg shadow-amber-900/10 active:scale-95" onclick="triggerConfirmation('restart')">
+<span class="material-symbols-outlined">restart_alt</span>
+                                    Restart
+                                </button>
+<button class="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 border border-outline-variant hover:bg-surface-container-low text-on-surface rounded-lg font-title-md text-title-md transition-all active:scale-95">
+<span class="material-symbols-outlined">settings_ethernet</span>
+                                    View Config
+                                </button>
+</div>
+</div>
+</div>
+<!-- Recent Admin Actions Table (Full width) -->
+<div class="col-span-12 bg-white border border-outline-variant rounded-xl overflow-hidden flex flex-col">
+<div class="px-unit-lg py-unit-md bg-[#F1F3F5] border-b border-outline-variant flex justify-between items-center">
+<h3 class="font-label-md text-label-md font-bold text-on-surface-variant uppercase tracking-wider">Recent Admin Actions</h3>
+<button class="text-secondary font-label-md text-label-md hover:underline flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">download</span> Export Logs
+                            </button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="border-b border-outline-variant bg-surface-container-lowest">
+<tr>
+<th class="px-unit-lg py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Operator</th>
+<th class="px-unit-lg py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Action</th>
+<th class="px-unit-lg py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Impact</th>
+<th class="px-unit-lg py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Timestamp</th>
+<th class="px-unit-lg py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="hover:bg-background transition-colors h-[48px]">
+<td class="px-unit-lg py-3 flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-secondary-container text-white flex items-center justify-center font-label-sm">JS</div>
+<span class="font-body-md text-body-md">james_stark</span>
+</td>
+<td class="px-unit-lg py-3">
+<span class="font-body-md text-body-md font-medium">Config Update</span>
+</td>
+<td class="px-unit-lg py-3">
+<span class="font-body-sm text-body-sm">Stripe-Gateway-V2</span>
+</td>
+<td class="px-unit-lg py-3 font-label-md text-label-md text-on-surface-variant">
+                                            2024-05-16 14:22:10
+                                        </td>
+<td class="px-unit-lg py-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-green-100 text-[#28A745] font-label-sm text-label-sm">Success</span>
+</td>
+</tr>
+<tr class="hover:bg-background transition-colors h-[48px]">
+<td class="px-unit-lg py-3 flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center font-label-sm">AL</div>
+<span class="font-body-md text-body-md">a_lee_dev</span>
+</td>
+<td class="px-unit-lg py-3">
+<span class="font-body-md text-body-md font-medium text-error">Service Stop</span>
+</td>
+<td class="px-unit-lg py-3">
+<span class="font-body-sm text-body-sm">PayPal-Internal-API</span>
+</td>
+<td class="px-unit-lg py-3 font-label-md text-label-md text-on-surface-variant">
+                                            2024-05-16 12:05:45
+                                        </td>
+<td class="px-unit-lg py-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-green-100 text-[#28A745] font-label-sm text-label-sm">Success</span>
+</td>
+</tr>
+<tr class="hover:bg-background transition-colors h-[48px]">
+<td class="px-unit-lg py-3 flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-surface-container-high text-on-surface flex items-center justify-center font-label-sm">SC</div>
+<span class="font-body-md text-body-md">system_cron</span>
+</td>
+<td class="px-unit-lg py-3">
+<span class="font-body-md text-body-md font-medium">Auto-Restart</span>
+</td>
+<td class="px-unit-lg py-3">
+<span class="font-body-sm text-body-sm">Ledger-Consolidator</span>
+</td>
+<td class="px-unit-lg py-3 font-label-md text-label-md text-on-surface-variant">
+                                            2024-05-16 04:00:00
+                                        </td>
+<td class="px-unit-lg py-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-green-100 text-[#28A745] font-label-sm text-label-sm">Success</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Destructive Action Confirmation Overlay (Hidden by default) -->
+<div class="fixed inset-0 z-[60] flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300" id="confirmationOverlay">
+<div class="absolute inset-0 bg-primary/40 confirmation-overlay"></div>
+<div class="relative w-full max-w-md bg-white rounded-xl shadow-2xl p-unit-xl mx-4 transform translate-y-4 transition-transform duration-300 border border-outline-variant" id="confirmationBox">
+<div class="flex items-start gap-unit-md">
+<div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" id="confirmIconContainer">
+<span class="material-symbols-outlined text-3xl" id="confirmIcon">warning</span>
+</div>
+<div class="flex-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface" id="confirmTitle">Confirm Action</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2" id="confirmText">
+                        Are you sure you want to perform this destructive action on Stripe-Gateway-V2? This may impact active transactions.
+                    </p>
+</div>
+</div>
+<div class="mt-unit-xl flex justify-end gap-unit-md">
+<button class="px-6 py-2 border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:bg-surface-container-low" onclick="closeConfirmation()">Cancel</button>
+<button class="px-6 py-2 rounded-lg font-label-md text-label-md text-white shadow-lg active:scale-95 transition-all" id="confirmBtn">Confirm Execution</button>
+</div>
+</div>
+</div>
+<script>
+        function triggerConfirmation(action) {
+            const overlay = document.getElementById('confirmationOverlay');
+            const box = document.getElementById('confirmationBox');
+            const iconContainer = document.getElementById('confirmIconContainer');
+            const icon = document.getElementById('confirmIcon');
+            const title = document.getElementById('confirmTitle');
+            const btn = document.getElementById('confirmBtn');
+
+            if (action === 'stop') {
+                title.innerText = "Stop Service?";
+                icon.innerText = "report";
+                iconContainer.className = "w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 bg-red-100 text-red-600";
+                btn.className = "px-6 py-2 rounded-lg font-label-md text-label-md text-white shadow-lg bg-red-600 hover:bg-red-700 active:scale-95 transition-all";
+            } else if (action === 'restart') {
+                title.innerText = "Restart Service?";
+                icon.innerText = "refresh";
+                iconContainer.className = "w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 bg-amber-100 text-amber-600";
+                btn.className = "px-6 py-2 rounded-lg font-label-md text-label-md text-white shadow-lg bg-amber-600 hover:bg-amber-700 active:scale-95 transition-all";
+            }
+
+            overlay.classList.remove('pointer-events-none', 'opacity-0');
+            box.classList.remove('translate-y-4');
+        }
+
+        function closeConfirmation() {
+            const overlay = document.getElementById('confirmationOverlay');
+            const box = document.getElementById('confirmationBox');
+            
+            overlay.classList.add('pointer-events-none', 'opacity-0');
+            box.classList.add('translate-y-4');
+        }
+
+        // Close on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeConfirmation();
+        });
+    </script>
+</body></html>
+

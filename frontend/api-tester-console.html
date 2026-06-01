@@ -1,0 +1,466 @@
+﻿<!-- API Tester Console -->
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>API Tester | OpsConsole</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #c5c6cd;
+            border-radius: 10px;
+        }
+        .method-get { color: #28A745; }
+        .method-post { color: #0070ea; }
+        .method-put { color: #a28963; }
+        .method-delete { color: #ba1a1a; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#e0e9f2",
+                        "on-secondary-fixed-variant": "#004493",
+                        "surface-tint": "#545e76",
+                        "inverse-surface": "#293138",
+                        "on-primary-fixed-variant": "#3c475d",
+                        "secondary-fixed-dim": "#adc7ff",
+                        "on-primary-container": "#828da7",
+                        "surface-dim": "#d2dbe4",
+                        "surface-container-lowest": "#ffffff",
+                        "primary": "#051125",
+                        "tertiary-fixed": "#fcdeb3",
+                        "on-secondary-container": "#fefcff",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "surface-bright": "#f6faff",
+                        "on-error-container": "#93000a",
+                        "on-surface": "#141d23",
+                        "on-tertiary-fixed": "#271901",
+                        "surface": "#f6faff",
+                        "tertiary-fixed-dim": "#dfc299",
+                        "on-surface-variant": "#45474d",
+                        "on-tertiary-container": "#a28963",
+                        "tertiary": "#1a0f00",
+                        "secondary-container": "#0070ea",
+                        "primary-fixed-dim": "#bbc6e2",
+                        "secondary-fixed": "#d8e2ff",
+                        "surface-container-highest": "#dbe4ed",
+                        "on-error": "#ffffff",
+                        "tertiary-container": "#332306",
+                        "on-primary-fixed": "#101b30",
+                        "surface-variant": "#dbe4ed",
+                        "inverse-primary": "#bbc6e2",
+                        "inverse-on-surface": "#e9f2fb",
+                        "surface-container-low": "#ecf5fe",
+                        "on-tertiary-fixed-variant": "#574423",
+                        "outline-variant": "#c5c6cd",
+                        "outline": "#75777d",
+                        "on-background": "#141d23",
+                        "primary-container": "#1b263b",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed": "#001a41",
+                        "surface-container": "#e6eff8",
+                        "background": "#f6faff",
+                        "secondary": "#0059bb",
+                        "primary-fixed": "#d7e2ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit-md": "16px",
+                        "sidebar-width": "240px",
+                        "container-max-width": "1440px",
+                        "unit-xs": "4px",
+                        "unit-sm": "8px",
+                        "margin-page": "32px",
+                        "unit-lg": "24px",
+                        "unit-xl": "32px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["JetBrains Mono"],
+                        "body-sm": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-md": ["JetBrains Mono"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "title-md": ["Inter"],
+                        "title-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}],
+                        "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label-md": ["13px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "title-md": ["16px", {"lineHeight": "24px", "fontWeight": "500"}],
+                        "title-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-hidden h-screen flex">
+<!-- SideNavBar (Shared Component) -->
+<aside class="w-[240px] h-screen fixed left-0 top-0 bg-primary border-r border-outline-variant flex flex-col py-unit-lg z-50">
+<div class="px-unit-lg mb-unit-xl">
+<h1 class="font-headline-sm text-headline-sm font-bold text-on-primary">OpsConsole</h1>
+<p class="text-on-primary-container/70 font-body-sm">DevOps Platform</p>
+</div>
+<nav class="flex-1 space-y-1">
+<div class="flex items-center gap-unit-md px-unit-lg py-unit-sm text-on-primary-container/70 hover:bg-primary-container cursor-pointer transition-colors duration-200">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md">Dashboard</span>
+</div>
+<div class="flex items-center gap-unit-md px-unit-lg py-unit-sm text-on-primary-container/70 hover:bg-primary-container cursor-pointer transition-colors duration-200">
+<span class="material-symbols-outlined">monitor_heart</span>
+<span class="font-body-md">System Health</span>
+</div>
+<!-- Active Tab: API Tester -->
+<div class="flex items-center gap-unit-md px-unit-lg py-unit-sm bg-secondary-container/20 text-secondary-fixed border-l-4 border-secondary-container cursor-pointer">
+<span class="material-symbols-outlined">api</span>
+<span class="font-body-md">API Tester</span>
+</div>
+<div class="flex items-center gap-unit-md px-unit-lg py-unit-sm text-on-primary-container/70 hover:bg-primary-container cursor-pointer transition-colors duration-200">
+<span class="material-symbols-outlined">admin_panel_settings</span>
+<span class="font-body-md">System Admin</span>
+</div>
+<div class="flex items-center gap-unit-md px-unit-lg py-unit-sm text-on-primary-container/70 hover:bg-primary-container cursor-pointer transition-colors duration-200">
+<span class="material-symbols-outlined">group</span>
+<span class="font-body-md">User Admin</span>
+</div>
+<div class="flex items-center gap-unit-md px-unit-lg py-unit-sm text-on-primary-container/70 hover:bg-primary-container cursor-pointer transition-colors duration-200">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-body-md">Logs Watch</span>
+</div>
+</nav>
+<div class="px-unit-lg pt-unit-lg border-t border-white/10">
+<div class="flex items-center gap-unit-sm">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px] text-on-secondary-container">person</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-on-primary font-body-sm truncate">Admin User</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 ml-[240px] flex flex-col h-screen">
+<!-- TopNavBar (Shared Component) -->
+<header class="h-16 flex items-center justify-between px-unit-xl w-full bg-surface border-b border-outline-variant z-40">
+<div class="flex items-center gap-unit-lg flex-1">
+<h2 class="font-headline-sm text-headline-sm font-bold text-primary">System Dashboard</h2>
+<div class="max-w-md w-full relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg pl-10 pr-4 py-1.5 font-body-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="Search API endpoints..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-unit-md">
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-all cursor-pointer">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-all cursor-pointer">settings</button>
+<div class="w-8 h-8 rounded-full bg-outline-variant overflow-hidden">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="A professional close-up portrait of a technology professional with a neutral expression. The background is a clean, softly blurred corporate office with cool blue and grey tones. The lighting is bright and even, reflecting a modern light-mode design aesthetic suitable for a high-end DevOps platform interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDK8RDlQWl8rRRncqiKKWh2u32afjNUiJBqngDhTkmpGqYxnK8UeJ7mQwXJIw_K1TYHfQ1S2VsvzP6REBciZxPL6ySsAXg4vQBfBb3mEeoP3VL2FcznnPeUvlRobe-F8VUiRwFyBmZq884LvaG5jRvJUUsCkue7b6geg5BDaQ49otcyacvT7OW1rGuyCHs4UYfly66anf7ZVexUjnVO_OeEKILdGFvqMAgwBkhelNPFc7aCIM4pVunC4fPVHTwpAbmaq2f1YstaZOU"/>
+</div>
+</div>
+</header>
+<!-- 3-Pane API Tester Layout -->
+<div class="flex-1 flex overflow-hidden">
+<!-- Left Pane: API Collections Tree -->
+<section class="w-64 border-r border-outline-variant bg-surface flex flex-col">
+<div class="p-unit-md border-b border-outline-variant flex items-center justify-between">
+<h3 class="font-title-md text-title-md text-on-surface">Collections</h3>
+<button class="material-symbols-outlined text-secondary text-[20px] hover:bg-secondary-container/10 p-1 rounded transition-colors">add_box</button>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar p-unit-sm">
+<!-- Collection: Auth -->
+<div class="mb-unit-sm">
+<div class="flex items-center gap-2 px-2 py-1.5 hover:bg-surface-container rounded cursor-pointer group">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">folder_open</span>
+<span class="font-body-md text-on-surface font-medium flex-1">Auth Service</span>
+</div>
+<div class="ml-6 space-y-0.5 mt-1">
+<div class="flex items-center gap-2 px-2 py-1 hover:bg-surface-container rounded cursor-pointer">
+<span class="font-label-sm text-[10px] w-8 method-post">POST</span>
+<span class="font-body-sm text-on-surface-variant truncate">/v1/login</span>
+</div>
+<div class="flex items-center gap-2 px-2 py-1 hover:bg-surface-container rounded cursor-pointer">
+<span class="font-label-sm text-[10px] w-8 method-post">POST</span>
+<span class="font-body-sm text-on-surface-variant truncate">/v1/refresh</span>
+</div>
+</div>
+</div>
+<!-- Collection: Payments -->
+<div class="mb-unit-sm">
+<div class="flex items-center gap-2 px-2 py-1.5 hover:bg-surface-container rounded cursor-pointer">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">folder</span>
+<span class="font-body-md text-on-surface font-medium flex-1">Payments</span>
+</div>
+</div>
+<!-- Collection: Users -->
+<div class="mb-unit-sm">
+<div class="flex items-center gap-2 px-2 py-1.5 hover:bg-surface-container rounded cursor-pointer">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">folder_open</span>
+<span class="font-body-md text-on-surface font-medium flex-1">User Management</span>
+</div>
+<div class="ml-6 space-y-0.5 mt-1">
+<div class="flex items-center gap-2 px-2 py-1 bg-secondary/10 border-l-2 border-secondary rounded-r cursor-pointer">
+<span class="font-label-sm text-[10px] w-8 method-get">GET</span>
+<span class="font-body-sm text-secondary truncate">/users/list</span>
+</div>
+<div class="flex items-center gap-2 px-2 py-1 hover:bg-surface-container rounded cursor-pointer">
+<span class="font-label-sm text-[10px] w-8 method-put">PUT</span>
+<span class="font-body-sm text-on-surface-variant truncate">/users/{id}</span>
+</div>
+<div class="flex items-center gap-2 px-2 py-1 hover:bg-surface-container rounded cursor-pointer">
+<span class="font-label-sm text-[10px] w-8 method-delete">DEL</span>
+<span class="font-body-sm text-on-surface-variant truncate">/users/{id}</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Center Pane: Request Builder & Response -->
+<section class="flex-1 flex flex-col bg-surface-container-lowest overflow-hidden">
+<!-- Request Builder (Top Half) -->
+<div class="flex-1 flex flex-col border-b border-outline-variant p-unit-lg min-h-0">
+<!-- URL Bar -->
+<div class="flex gap-unit-sm mb-unit-lg">
+<div class="relative min-w-[100px]">
+<select class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2 font-label-md text-secondary appearance-none cursor-pointer focus:ring-1 focus:ring-secondary">
+<option>GET</option>
+<option>POST</option>
+<option>PUT</option>
+<option>DELETE</option>
+<option>PATCH</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">arrow_drop_down</span>
+</div>
+<input class="flex-1 bg-surface border border-outline-variant rounded-lg px-4 py-2 font-label-md focus:ring-1 focus:ring-secondary outline-none" type="text" value="https://api.opsconsole.internal/v1/users/list?active=true"/>
+<button class="bg-secondary text-white px-unit-lg py-2 rounded-lg font-title-md hover:bg-secondary/90 transition-colors shadow-sm flex items-center gap-2">
+<span>Send</span>
+<span class="material-symbols-outlined text-[18px]">send</span>
+</button>
+</div>
+<!-- Builder Tabs -->
+<div class="flex-1 flex flex-col min-h-0">
+<div class="flex gap-unit-lg border-b border-outline-variant mb-unit-md">
+<button class="px-2 py-2 border-b-2 border-secondary text-secondary font-title-md">Params</button>
+<button class="px-2 py-2 text-on-surface-variant font-title-md hover:text-on-surface">Auth</button>
+<button class="px-2 py-2 text-on-surface-variant font-title-md hover:text-on-surface">Headers</button>
+<button class="px-2 py-2 text-on-surface-variant font-title-md hover:text-on-surface">Body</button>
+<button class="px-2 py-2 text-on-surface-variant font-title-md hover:text-on-surface">Scripts</button>
+</div>
+<!-- Params Table -->
+<div class="flex-1 overflow-y-auto custom-scrollbar">
+<table class="w-full text-left font-body-sm">
+<thead class="bg-surface-container-low text-on-surface-variant font-bold text-[11px] uppercase tracking-wider">
+<tr>
+<th class="px-4 py-2 border-b border-outline-variant w-8"></th>
+<th class="px-4 py-2 border-b border-outline-variant">Key</th>
+<th class="px-4 py-2 border-b border-outline-variant">Value</th>
+<th class="px-4 py-2 border-b border-outline-variant">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant hover:bg-surface">
+<td class="px-4 py-2"><input checked="" class="rounded border-outline text-secondary focus:ring-secondary" type="checkbox"/></td>
+<td class="px-4 py-2 font-label-md text-secondary">active</td>
+<td class="px-4 py-2 font-label-md">true</td>
+<td class="px-4 py-2 text-on-surface-variant">Filter for active accounts only</td>
+</tr>
+<tr class="border-b border-outline-variant hover:bg-surface">
+<td class="px-4 py-2"><input checked="" class="rounded border-outline text-secondary focus:ring-secondary" type="checkbox"/></td>
+<td class="px-4 py-2 font-label-md text-secondary">limit</td>
+<td class="px-4 py-2 font-label-md">25</td>
+<td class="px-4 py-2 text-on-surface-variant">Results per page</td>
+</tr>
+<tr class="hover:bg-surface">
+<td class="px-4 py-2"><input class="rounded border-outline text-secondary focus:ring-secondary" type="checkbox"/></td>
+<td class="px-4 py-2 font-label-md text-outline-variant">Key</td>
+<td class="px-4 py-2 font-label-md text-outline-variant">Value</td>
+<td class="px-4 py-2 text-on-surface-variant">Description</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Response Viewer (Bottom Half) -->
+<div class="flex-1 flex flex-col min-h-0 bg-surface">
+<div class="px-unit-lg py-2 border-b border-outline-variant flex items-center justify-between">
+<div class="flex items-center gap-unit-lg">
+<h4 class="font-title-md text-on-surface">Response</h4>
+<div class="flex items-center gap-unit-md text-label-sm">
+<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">200 OK</span>
+<span class="text-on-surface-variant">Time: <span class="text-on-surface">42ms</span></span>
+<span class="text-on-surface-variant">Size: <span class="text-on-surface">1.2 KB</span></span>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="material-symbols-outlined text-on-surface-variant text-[20px] p-1.5 hover:bg-surface-container rounded transition-all">content_copy</button>
+<button class="material-symbols-outlined text-on-surface-variant text-[20px] p-1.5 hover:bg-surface-container rounded transition-all">save</button>
+</div>
+</div>
+<div class="flex-1 flex flex-col min-h-0">
+<div class="flex gap-unit-lg px-unit-lg pt-2 border-b border-outline-variant">
+<button class="px-2 py-1.5 border-b-2 border-secondary text-secondary font-label-md">Pretty</button>
+<button class="px-2 py-1.5 text-on-surface-variant font-label-md">Raw</button>
+<button class="px-2 py-1.5 text-on-surface-variant font-label-md">Preview</button>
+<button class="px-2 py-1.5 text-on-surface-variant font-label-md">Headers</button>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar p-unit-lg bg-[#fdfdfd] font-label-md text-on-surface leading-relaxed">
+<pre class="whitespace-pre-wrap"><span class="text-blue-600">{</span>
+  <span class="text-secondary">"status"</span>: <span class="text-green-700">"success"</span>,
+  <span class="text-secondary">"data"</span>: <span class="text-blue-600">[</span>
+    <span class="text-blue-600">{</span>
+      <span class="text-secondary">"id"</span>: <span class="text-amber-700">10283</span>,
+      <span class="text-secondary">"username"</span>: <span class="text-green-700">"j.smith"</span>,
+      <span class="text-secondary">"email"</span>: <span class="text-green-700">"john.smith@opsconsole.internal"</span>,
+      <span class="text-secondary">"roles"</span>: <span class="text-blue-600">[</span><span class="text-green-700">"admin"</span>, <span class="text-green-700">"developer"</span><span class="text-blue-600">]</span>,
+      <span class="text-secondary">"active"</span>: <span class="text-blue-700">true</span>,
+      <span class="text-secondary">"last_login"</span>: <span class="text-green-700">"2023-11-20T14:48:00Z"</span>
+    <span class="text-blue-600">}</span>,
+    <span class="text-blue-600">{</span>
+      <span class="text-secondary">"id"</span>: <span class="text-amber-700">10284</span>,
+      <span class="text-secondary">"username"</span>: <span class="text-green-700">"a.lee"</span>,
+      <span class="text-secondary">"email"</span>: <span class="text-green-700">"anna.lee@opsconsole.internal"</span>,
+      <span class="text-secondary">"roles"</span>: <span class="text-blue-600">[</span><span class="text-green-700">"developer"</span><span class="text-blue-600">]</span>,
+      <span class="text-secondary">"active"</span>: <span class="text-blue-700">true</span>
+    <span class="text-blue-600">}</span>
+  <span class="text-blue-600">]</span>,
+  <span class="text-secondary">"meta"</span>: <span class="text-blue-600">{</span>
+    <span class="text-secondary">"total_count"</span>: <span class="text-amber-700">2</span>,
+    <span class="text-secondary">"page"</span>: <span class="text-amber-700">1</span>
+  <span class="text-blue-600">}</span>
+<span class="text-blue-600">}</span></pre>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Pane: History -->
+<section class="w-72 border-l border-outline-variant bg-surface flex flex-col">
+<div class="p-unit-md border-b border-outline-variant flex items-center justify-between">
+<h3 class="font-title-md text-title-md text-on-surface">History</h3>
+<button class="material-symbols-outlined text-on-surface-variant text-[20px] hover:bg-surface-container p-1 rounded transition-colors">history_toggle_off</button>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar p-unit-sm">
+<div class="space-y-1">
+<!-- History Entry -->
+<div class="p-2 hover:bg-surface-container rounded cursor-pointer transition-colors">
+<div class="flex items-center gap-2 mb-1">
+<span class="font-label-sm text-[10px] method-get">GET</span>
+<span class="font-body-sm text-on-surface-variant flex-1 truncate">/users/list</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant">2m ago</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-[#28A745]"></span>
+<span class="font-label-sm text-[11px] text-on-surface-variant">200 OK</span>
+</div>
+</div>
+<!-- History Entry -->
+<div class="p-2 hover:bg-surface-container rounded cursor-pointer transition-colors bg-surface-container-low border border-outline-variant/30">
+<div class="flex items-center gap-2 mb-1">
+<span class="font-label-sm text-[10px] method-post">POST</span>
+<span class="font-body-sm text-on-surface-variant flex-1 truncate">/v1/login</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant">15m ago</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-[#28A745]"></span>
+<span class="font-label-sm text-[11px] text-on-surface-variant">200 OK</span>
+</div>
+</div>
+<!-- History Entry -->
+<div class="p-2 hover:bg-surface-container rounded cursor-pointer transition-colors">
+<div class="flex items-center gap-2 mb-1">
+<span class="font-label-sm text-[10px] method-get">GET</span>
+<span class="font-body-sm text-on-surface-variant flex-1 truncate">/v1/metrics/cpu</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant">1h ago</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+<span class="font-label-sm text-[11px] text-on-surface-variant">500 Server Error</span>
+</div>
+</div>
+<!-- History Entry -->
+<div class="p-2 hover:bg-surface-container rounded cursor-pointer transition-colors">
+<div class="flex items-center gap-2 mb-1">
+<span class="font-label-sm text-[10px] method-put">PUT</span>
+<span class="font-body-sm text-on-surface-variant flex-1 truncate">/users/10283</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant">3h ago</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+<span class="font-label-sm text-[11px] text-on-surface-variant">401 Unauthorized</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<script>
+        // Micro-interaction for Send button
+        document.querySelector('button:has(span:contains("Send"))')?.addEventListener('click', function() {
+            const btn = this;
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<span>Sending...</span><span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }, 800);
+        });
+
+        // Tab switching logic (Atmospheric only)
+        const tabs = document.querySelectorAll('.BuilderTabs button');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => {
+                    t.classList.remove('border-b-2', 'border-secondary', 'text-secondary');
+                    t.classList.add('text-on-surface-variant');
+                });
+                tab.classList.add('border-b-2', 'border-secondary', 'text-secondary');
+                tab.classList.remove('text-on-surface-variant');
+            });
+        });
+    </script>
+</body></html>
+

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+<aside th:fragment="sidebar"
+
+       class="opsconsole-sidebar w-[240px] h-screen fixed left-0 top-0 bg-primary border-r border-outline-variant flex flex-col py-unit-lg z-50">
+
+    <div class="px-unit-lg mb-unit-xl">
+
+        <div class="flex items-center gap-unit-sm">
+
+            <div class="w-8 h-8 rounded bg-secondary-container flex items-center justify-center shrink-0">
+
+                <span class="material-symbols-outlined text-on-secondary" style="font-variation-settings: 'FILL' 1;">terminal</span>
+
+            </div>
+
+            <div>
+
+                <h1 class="font-headline-sm text-headline-sm font-bold text-on-primary leading-none">OpsConsole</h1>
+
+                <p class="text-[10px] text-on-primary-container uppercase tracking-widest mt-1">DevOps Platform</p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <nav class="flex-1 overflow-y-auto custom-scrollbar space-y-1">
+
+        <a th:if="${navAccess == null or navAccess['dashboard'] == true}" th:href="@{/}"
+
+           th:classappend="${activeNav == 'dashboard'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
+
+           class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200">
+
+            <span class="material-symbols-outlined">dashboard</span>
+
+            <span class="font-body-md text-body-md">Dashboard</span>
+
+        </a>
+
+        <a th:if="${navAccess == null or navAccess['health'] == true}" th:href="@{/health}"
+
+           th:classappend="${activeNav == 'health'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
+
+           class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200">
+
+            <span class="material-symbols-outlined">monitor_heart</span>
+
+            <span class="font-body-md text-body-md">System Health</span>
+
+        </a>
+
+        <a th:if="${navAccess == null or navAccess['api-tester'] == true}" th:href="@{/api-tester}"
+
+           th:classappend="${activeNav == 'api-tester'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
+
+           class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200">
+
+            <span class="material-symbols-outlined">api</span>
+
+            <span class="font-body-md text-body-md">API Tester</span>
+
+        </a>
+
+        <a th:if="${navAccess == null or navAccess['admin'] == true}" th:href="@{/admin}"
+
+           th:classappend="${activeNav == 'admin'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
+
+           class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200">
+
+            <span class="material-symbols-outlined">admin_panel_settings</span>
+
+            <span class="font-body-md text-body-md">System Admin</span>
+
+        </a>
+
+        <a th:if="${navAccess == null or navAccess['users'] == true}" th:href="@{/users}"
+
+           th:classappend="${activeNav == 'users'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
+
+           class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200">
+
+            <span class="material-symbols-outlined">group</span>
+
+            <span class="font-body-md text-body-md">User Admin</span>
+
+        </a>
+
+        <a th:if="${navAccess == null or navAccess['logs'] == true}" th:href="@{/logs}"
+
+           th:classappend="${activeNav == 'logs'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
+
+           class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200">
+
+            <span class="material-symbols-outlined">analytics</span>
+
+            <span class="font-body-md text-body-md">Logs Watch</span>
+
+        </a>
+
+    </nav>
+
+    <div class="px-unit-lg mt-auto pt-unit-lg space-y-unit-sm">
+
+        <div th:if="${currentUser != null}" class="p-unit-sm bg-primary-container rounded-lg border border-outline-variant/20">
+
+            <p class="text-[11px] font-label-sm text-on-primary-container truncate" th:text="${currentUser.displayName}">User</p>
+
+            <p class="text-[10px] text-on-primary-container/70 truncate" th:text="${currentUser.role != null ? currentUser.role.name : 'User'}">Role</p>
+
+        </div>
+
+        <form th:action="@{/logout}" method="post" class="w-full">
+            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+            <button type="submit" class="w-full flex items-center justify-center gap-2 px-unit-sm py-2 rounded-lg text-on-primary-container/80 hover:bg-primary-container/80 hover:text-on-primary text-body-sm transition-colors">
+
+                <span class="material-symbols-outlined text-[18px]">logout</span>
+
+                Sign out
+
+            </button>
+
+        </form>
+
+    </div>
+
+</aside>
+
+</body>
+
+</html>
+

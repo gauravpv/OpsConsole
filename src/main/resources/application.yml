@@ -1,0 +1,115 @@
+spring:
+  application:
+    name: opsconsole
+  datasource:
+    # Embedded file DB only (no AUTO_SERVER — avoids stale remote H2 connection timeouts)
+    url: jdbc:h2:file:./data/opsconsole;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=10000
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.H2Dialect
+    open-in-view: false
+  thymeleaf:
+    cache: false
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+opsconsole:
+  auth:
+    # dev = email/password; azure = Microsoft Entra ID (Azure AD)
+    mode: dev
+    default-role-code: MONITORING
+    # Dev seed passwords: admin@opsconsole.local / Admin@123,
+    # tester@opsconsole.local / Tester@123, monitoring@opsconsole.local / Monitoring@123
+    # (legacy: operator@opsconsole.local / Operator@123, viewer@opsconsole.local / Viewer@123)
+  health:
+    refresh-seconds: 30
+    refresh-interval-ms: 30000
+    connect-timeout-ms: 3000
+    read-timeout-ms: 5000
+    default-actuator-path: /actuator/health
+  monitors:
+    - name: Local OpsConsole
+      host: localhost
+      port: 8080
+      environment: Development
+      region: Local
+    - name: Sample UAT Service
+      host: 127.0.0.1
+      port: 8081
+      environment: UAT
+      region: US-East-1
+    - name: Sample Production Service
+      host: 127.0.0.1
+      port: 8082
+      environment: Production
+      region: EU-Central-1
+  admin:
+    # dev = simulate SSH; live = real SSH (requires OPS_SSH_KEY_PATH)
+    mode: dev
+    ssh:
+      private-key-path: ${OPS_SSH_KEY_PATH:}
+      connect-timeout-ms: 10000
+      command-timeout-ms: 60000
+    # Linux host prerequisites (live mode):
+    # - opsconsole SSH user with key login (OPS_SSH_KEY_PATH)
+    # - start/stop/restart scripts executable on the server
+    # - sudoers for properties: NOPASSWD tee/cp on configured properties-path only
+    servers:
+      - name: dev-linux-01
+        host: 127.0.0.1
+        ssh-user: opsconsole
+        services:
+          - name: payment-api
+            description: Core Payment Processing Engine
+            port: 8081
+            category: Payment Services
+            start-script: /opt/payment/bin/start.sh
+            stop-script: /opt/payment/bin/stop.sh
+            restart-script: /opt/payment/bin/restart.sh
+            properties-path: /opt/payment/config/application.properties
+          - name: auth-core
+            description: User Auth Core
+            port: 8082
+            category: User Auth Core
+            start-script: /opt/auth/bin/start.sh
+            stop-script: /opt/auth/bin/stop.sh
+            restart-script: /opt/auth/bin/restart.sh
+            properties-path: /opt/auth/config/application.properties
+
+---
+# Azure AD login — set opsconsole.auth.mode=azure and env vars below.
+# App registration redirect URI: http://localhost:8080/login/oauth2/code/azure
+spring:
+  config:
+    activate:
+      on-profile: azure
+  security:
+    oauth2:
+      client:
+        registration:
+          azure:
+            client-id: ${AZURE_CLIENT_ID}
+            client-secret: ${AZURE_CLIENT_SECRET}
+            scope: openid, profile, email
+        provider:
+          azure:
+            issuer-uri: https://login.microsoftonline.com/${AZURE_TENANT_ID}/v2.0
+
+opsconsole:
+  auth:
+    mode: azure

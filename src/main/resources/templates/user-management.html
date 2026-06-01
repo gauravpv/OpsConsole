@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
+<head>
+<th:block th:replace="~{fragments/head :: head(pageTitle='User Administration')}"/>
+<style>
+    #userDrawer { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); }
+    #userDrawer.open { transform: translateX(0); }
+    #drawerOverlay { transition: opacity 0.3s ease; pointer-events: none; opacity: 0; }
+    #drawerOverlay.open { pointer-events: auto; opacity: 1; }
+</style>
+</head>
+<body class="opsconsole-app bg-background text-on-background font-body-md overflow-hidden">
+<div class="flex h-screen overflow-hidden">
+<aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+<main class="flex-1 flex flex-col ml-[240px] h-screen overflow-hidden bg-background">
+<header class="h-16 bg-surface border-b border-outline-variant flex items-center justify-between px-unit-xl w-full z-30">
+<div class="flex items-center gap-unit-md flex-1">
+<h2 class="oc-page-title font-headline-sm text-headline-sm font-bold text-primary">User Administration</h2>
+</div>
+<div class="flex items-center gap-unit-md">
+<th:block th:replace="~{fragments/stitch-theme :: theme-toggle}"></th:block>
+</div>
+</header>
+<div class="flex-1 overflow-y-auto p-unit-xl">
+<div class="max-w-container-max-width mx-auto space-y-unit-xl">
+
+<section class="space-y-unit-md">
+<div class="flex flex-col gap-unit-md sm:flex-row sm:items-end sm:justify-between">
+<div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-primary">Users</h3>
+<p class="text-body-sm text-on-surface-variant" id="usersCountLabel" th:attr="data-total=${#lists.size(users)}">
+<span id="usersCountText" th:text="|${#lists.size(users)} user(s)|">0 user(s)</span>
+</p>
+</div>
+<div class="flex flex-col sm:flex-row gap-unit-md sm:items-center w-full sm:w-auto">
+<label class="relative flex-1 sm:min-w-[280px] sm:max-w-md">
+<span class="sr-only">Search users</span>
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px] pointer-events-none">search</span>
+<input type="search" id="userSearch" placeholder="Search by name, email, role, or status…"
+       class="w-full bg-surface-container-low border border-outline-variant rounded-lg pl-10 pr-4 py-2 text-body-md text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:border-secondary-container"/>
+</label>
+<button type="button" id="addUserBtn" class="inline-flex items-center justify-center gap-2 px-unit-lg py-2 rounded-lg bg-secondary-container text-on-secondary-container font-title-md hover:bg-secondary-container/90 transition-all active:scale-95 shrink-0">
+<span class="material-symbols-outlined text-[20px]">person_add</span>
+Add user
+</button>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-xl">
+<table class="w-full border-collapse table-fixed" id="usersTable">
+<colgroup>
+<col style="width:22%"/>
+<col style="width:24%"/>
+<col style="width:14%"/>
+<col style="width:11%"/>
+<col style="width:17%"/>
+<col style="width:12%"/>
+</colgroup>
+<thead class="bg-surface-container-low border-b border-outline-variant">
+<tr>
+<th class="px-4 py-3 text-left font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">User</th>
+<th class="px-4 py-3 text-left font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Email</th>
+<th class="px-4 py-3 text-left font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Role</th>
+<th class="px-4 py-3 text-left font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Status</th>
+<th class="px-4 py-3 text-left font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Last login</th>
+<th class="px-4 py-3 text-right font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Actions</th>
+</tr>
+</thead>
+<tbody id="usersTableBody" class="divide-y divide-outline-variant">
+<tr th:each="u : ${users}" class="user-row hover:bg-surface-container-low/50 transition-colors duration-150 group hidden"
+    th:attr="data-search=${#strings.toLowerCase(u.displayName + ' ' + u.email + ' ' + u.role.name + ' ' + u.role.code + ' ' + (u.enabled ? 'active' : 'suspended') + ' ' + (u.jobTitle != null ? u.jobTitle : ''))}">
+<td class="px-4 py-3 align-middle">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-9 h-9 rounded-full bg-secondary-container/20 border border-outline-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary-fixed-dim text-[20px]">person</span>
+</div>
+<p class="font-title-md text-title-md text-on-surface truncate min-w-0" th:text="${u.displayName}">Name</p>
+</div>
+</td>
+<td class="px-4 py-3 align-middle">
+<span class="font-body-md text-body-md text-on-surface truncate block" th:text="${u.email}">email</span>
+</td>
+<td class="px-4 py-3 align-middle">
+<span th:class="${u.role.code == 'ADMIN' or u.role.name == 'Administrator'} ? 'inline-block px-2.5 py-0.5 rounded-full oc-badge-admin font-label-md text-label-md whitespace-nowrap' : 'inline-block px-2.5 py-0.5 rounded-full bg-surface-container-low text-on-surface-variant border border-outline-variant font-label-md text-label-md whitespace-nowrap'"
+      th:text="${u.role.name}">Role</span>
+</td>
+<td class="px-4 py-3 align-middle">
+<div class="flex items-center gap-2 whitespace-nowrap">
+<span th:class="${u.enabled} ? 'w-2 h-2 rounded-full oc-status-dot-active shrink-0' : 'w-2 h-2 rounded-full bg-error shrink-0'"></span>
+<span class="font-body-sm text-body-sm text-on-surface" th:text="${u.enabled ? 'Active' : 'Suspended'}">Active</span>
+</div>
+</td>
+<td class="px-4 py-3 align-middle">
+<span class="font-body-sm text-body-sm text-on-surface-variant/70 block truncate"
+      th:text="${u.lastLoginAt != null ? #temporals.format(u.lastLoginAt, 'MMM d yyyy HH:mm') : 'Never'}">Never</span>
+</td>
+<td class="px-4 py-3 text-right align-middle">
+<div class="inline-flex items-center justify-end gap-0.5">
+<button type="button" class="p-2 hover:bg-surface-container-low rounded transition-all text-secondary-fixed-dim"
+        th:attr="data-user-id=${u.id}, data-user-name=${u.displayName}, data-user-role=${u.role.code}, data-user-enabled=${u.enabled}"
+        onclick="openUserDrawer(this)" title="Edit user">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button type="button" class="delete-user-btn p-2 hover:bg-error-container/20 rounded transition-all text-error disabled:opacity-40 disabled:pointer-events-none"
+        th:attr="data-user-id=${u.id}, data-user-name=${u.displayName}"
+        th:disabled="${currentUser != null and currentUser.id == u.id}"
+        th:title="${currentUser != null and currentUser.id == u.id} ? 'Cannot delete your own account' : 'Delete user'"
+        onclick="deleteUser(this)">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<tr th:if="${#lists.isEmpty(users)}" id="usersEmptyState">
+<td colspan="6" class="px-unit-lg py-unit-xl text-center text-on-surface-variant">No users yet. Click <strong>Add user</strong> to create the first account.</td>
+</tr>
+<tr id="usersNoResultsRow" class="hidden">
+<td colspan="6" class="px-unit-lg py-unit-xl text-center text-on-surface-variant">No users match your search.</td>
+</tr>
+</tbody>
+</table>
+<div th:if="${!#lists.isEmpty(users)}" id="usersPaginationBar" class="flex flex-col sm:flex-row items-center justify-between gap-unit-md px-unit-lg py-unit-md border-t border-outline-variant bg-surface-container-low/40">
+<p class="text-body-sm text-on-surface-variant" id="usersPageSummary">Showing 1–10 of 0</p>
+<div class="flex items-center gap-2">
+<button type="button" id="usersPrevPage" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-outline-variant text-on-surface font-label-md hover:bg-surface-container-low disabled:opacity-40 disabled:pointer-events-none transition-colors" disabled>
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+Previous
+</button>
+<span class="text-body-sm text-on-surface-variant px-2 tabular-nums" id="usersPageIndicator">Page 1 of 1</span>
+<button type="button" id="usersNextPage" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-outline-variant text-on-surface font-label-md hover:bg-surface-container-low disabled:opacity-40 disabled:pointer-events-none transition-colors" disabled>
+Next
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+
+<section class="space-y-unit-md" id="roleTabsSection">
+<div class="flex items-center justify-between gap-unit-md flex-wrap">
+<div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-primary">Roles &amp; Tab Access</h3>
+<p class="text-body-sm text-on-surface-variant">Control which navigation tabs each role can see</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-xl" id="roleTabsMatrix">
+<div class="overflow-x-auto">
+<table class="w-full border-collapse">
+<thead class="bg-surface-container-low border-b border-outline-variant">
+<tr>
+<th class="px-4 py-3 text-left font-label-md text-label-md text-on-surface-variant uppercase tracking-wider min-w-[160px]">Tab</th>
+<th th:each="role : ${roles}" class="px-4 py-3 text-center font-label-md text-label-md text-on-surface-variant uppercase tracking-wider min-w-[120px]"
+    th:attr="data-role-id=${role.id}">
+<div class="flex flex-col items-center gap-0.5">
+<span th:text="${role.name}">Role</span>
+<span class="text-label-sm opacity-70" th:text="${role.code}">CODE</span>
+</div>
+</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/50">
+<tr th:each="tab : ${allTabs}" class="hover:bg-surface-container-low/30">
+<td class="px-4 py-3 font-body-md text-on-surface" th:text="${tab.label}">Tab</td>
+<td th:each="role : ${roles}" class="px-4 py-3 text-center">
+<input type="checkbox" class="role-tab-cb rounded border-outline-variant/30 bg-surface-container-low text-secondary-container focus:ring-secondary-container"
+       th:attr="data-role-id=${role.id}, data-tab-id=${tab.id()}"
+       th:checked="${roleTabFlags[role.id][tab.id()] == true}"/>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-unit-lg py-unit-md border-t border-outline-variant flex justify-end bg-surface-container-low/40">
+<button type="button" id="saveAllRoleTabs" class="px-unit-lg py-2 rounded-lg bg-secondary-container text-on-secondary-container font-title-md hover:bg-secondary-container/90 transition-all active:scale-95">
+Save tab access
+</button>
+</div>
+</div>
+</section>
+
+</div>
+</div>
+</main>
+</div>
+
+<div class="fixed inset-0 bg-primary/80 backdrop-blur-sm z-50 hidden" id="addUserOverlay" onclick="closeAddUserModal()"></div>
+<div class="fixed inset-0 z-[60] flex items-center justify-center p-unit-lg hidden" id="addUserModal">
+<div class="w-full max-w-lg bg-surface-container-lowest border border-outline-variant rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
+<div class="p-unit-lg border-b border-outline-variant flex items-center justify-between shrink-0">
+<div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Add user</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Create a local account with email and password</p>
+</div>
+<button type="button" class="p-2 hover:bg-surface-container-low rounded-full" onclick="closeAddUserModal()">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto p-unit-lg space-y-unit-md">
+<div>
+<label class="block font-label-md text-on-surface-variant uppercase tracking-wider mb-1" for="addDisplayName">Display name</label>
+<input type="text" id="addDisplayName" required maxlength="200" class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2 text-body-md text-on-surface focus:outline-none focus:border-secondary-container"/>
+</div>
+<div>
+<label class="block font-label-md text-on-surface-variant uppercase tracking-wider mb-1" for="addEmail">Email</label>
+<input type="email" id="addEmail" required maxlength="320" class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2 text-body-md text-on-surface focus:outline-none focus:border-secondary-container"/>
+</div>
+<div>
+<label class="block font-label-md text-on-surface-variant uppercase tracking-wider mb-1" for="addPassword">Password</label>
+<input type="password" id="addPassword" required minlength="8" autocomplete="new-password" class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2 text-body-md text-on-surface focus:outline-none focus:border-secondary-container"/>
+<p class="mt-1 text-body-sm text-on-surface-variant">At least 8 characters</p>
+</div>
+<div>
+<label class="block font-label-md text-on-surface-variant uppercase tracking-wider mb-1" for="addJobTitle">Job title <span class="normal-case text-on-surface-variant/70">(optional)</span></label>
+<input type="text" id="addJobTitle" maxlength="200" class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2 text-body-md text-on-surface focus:outline-none focus:border-secondary-container"/>
+</div>
+<div>
+<label class="block font-label-md text-on-surface-variant uppercase tracking-wider mb-1" for="addRoleSelect">Role</label>
+<select id="addRoleSelect" class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2 text-body-md text-on-surface focus:outline-none focus:border-secondary-container">
+<option th:each="role : ${roles}" th:value="${role.code}" th:text="${role.name}">Role</option>
+</select>
+</div>
+<div class="flex items-center gap-2">
+<input type="checkbox" id="addEnabled" checked class="rounded border-outline-variant/30 bg-surface-container-low text-secondary-container focus:ring-secondary-container"/>
+<label for="addEnabled" class="text-body-md text-on-surface">Account active</label>
+</div>
+<p id="addUserError" class="text-body-sm text-error hidden"></p>
+</div>
+<div class="p-unit-lg border-t border-outline-variant flex gap-unit-md shrink-0">
+<button type="button" class="flex-1 px-unit-lg py-2 rounded-lg border border-outline-variant text-on-surface font-title-md hover:bg-surface-container-low" onclick="closeAddUserModal()">Cancel</button>
+<button type="button" id="createUserBtn" class="flex-1 px-unit-lg py-2 rounded-lg bg-secondary-container text-on-secondary-container font-title-md hover:bg-secondary-container/90 active:scale-95">Create user</button>
+</div>
+</div>
+</div>
+
+<div class="fixed inset-0 bg-primary/80 backdrop-blur-sm z-50" id="drawerOverlay" onclick="closeUserDrawer()"></div>
+<div class="fixed top-0 right-0 w-full max-w-md h-screen bg-surface-container-lowest shadow-2xl z-50 flex flex-col border-l border-outline-variant" id="userDrawer">
+<div class="p-unit-lg border-b border-outline-variant flex items-center justify-between">
+<div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Edit User</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant" id="drawerUserSubtitle">—</p>
+</div>
+<button type="button" class="p-2 hover:bg-surface-container-low rounded-full" onclick="closeUserDrawer()">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto p-unit-lg space-y-unit-xl">
+<section class="space-y-unit-md">
+<label class="block font-label-md text-on-surface-variant uppercase tracking-wider">Account Status</label>
+<div class="flex items-center gap-unit-lg p-unit-md rounded-lg border border-outline-variant bg-surface-container-low">
+<label class="flex items-center gap-2 cursor-pointer">
+<input type="radio" name="userStatus" id="statusActive" value="true" class="text-secondary-container"/>
+<span class="text-body-md">Active</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input type="radio" name="userStatus" id="statusSuspended" value="false"/>
+<span class="text-body-md">Suspended</span>
+</label>
+</div>
+</section>
+<section class="space-y-unit-md">
+<label class="block font-label-md text-on-surface-variant uppercase tracking-wider" for="userRoleSelect">Role</label>
+<select id="userRoleSelect" class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2 text-body-md text-on-surface focus:outline-none focus:border-secondary-container">
+<option th:each="role : ${roles}" th:value="${role.code}" th:text="${role.name}">Role</option>
+</select>
+</section>
+</div>
+<div class="p-unit-lg border-t border-outline-variant flex gap-unit-md">
+<button type="button" class="flex-1 px-unit-lg py-2 rounded-lg border border-outline-variant text-on-surface font-title-md hover:bg-surface-container-low" onclick="closeUserDrawer()">Cancel</button>
+<button type="button" id="saveUserBtn" class="flex-1 px-unit-lg py-2 rounded-lg bg-secondary-container text-on-secondary-container font-title-md hover:bg-secondary-container/90 active:scale-95">Save Changes</button>
+</div>
+</div>
+
+<script th:inline="javascript">
+    let selectedUserId = null;
+    const currentUserId = /*[[${currentUser != null ? currentUser.id : null}]]*/ null;
+    const USERS_PAGE_SIZE = 10;
+    let usersCurrentPage = 1;
+    let usersFilteredRows = [];
+
+    function getUserRows() {
+        return Array.from(document.querySelectorAll('#usersTableBody tr.user-row'));
+    }
+
+    function applyUsersTableView() {
+        const rows = getUserRows();
+        const searchInput = document.getElementById('userSearch');
+        const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+        const noResultsRow = document.getElementById('usersNoResultsRow');
+        const paginationBar = document.getElementById('usersPaginationBar');
+
+        usersFilteredRows = rows.filter(row => {
+            const text = row.dataset.search || '';
+            return !query || text.includes(query);
+        });
+
+        const total = usersFilteredRows.length;
+        const totalPages = Math.max(1, Math.ceil(total / USERS_PAGE_SIZE) || 1);
+        if (usersCurrentPage > totalPages) usersCurrentPage = totalPages;
+        if (usersCurrentPage < 1) usersCurrentPage = 1;
+
+        rows.forEach(row => row.classList.add('hidden'));
+
+        if (total === 0) {
+            if (noResultsRow) noResultsRow.classList.remove('hidden');
+            if (paginationBar) paginationBar.classList.add('hidden');
+        } else {
+            if (noResultsRow) noResultsRow.classList.add('hidden');
+            if (paginationBar) paginationBar.classList.remove('hidden');
+            const start = (usersCurrentPage - 1) * USERS_PAGE_SIZE;
+            usersFilteredRows.slice(start, start + USERS_PAGE_SIZE).forEach(row => row.classList.remove('hidden'));
+        }
+
+        const totalAll = parseInt(document.getElementById('usersCountLabel')?.dataset.total || '0', 10);
+        const countText = document.getElementById('usersCountText');
+        if (countText) {
+            if (query && total !== totalAll) {
+                countText.textContent = `${total} of ${totalAll} user(s)`;
+            } else {
+                countText.textContent = `${totalAll} user(s)`;
+            }
+        }
+
+        const summary = document.getElementById('usersPageSummary');
+        const indicator = document.getElementById('usersPageIndicator');
+        const prevBtn = document.getElementById('usersPrevPage');
+        const nextBtn = document.getElementById('usersNextPage');
+
+        if (total === 0) {
+            if (summary) summary.textContent = query ? 'No matches' : 'No users';
+            if (indicator) indicator.textContent = 'Page 0 of 0';
+            if (prevBtn) prevBtn.disabled = true;
+            if (nextBtn) nextBtn.disabled = true;
+            return;
+        }
+
+        const startIdx = (usersCurrentPage - 1) * USERS_PAGE_SIZE + 1;
+        const endIdx = Math.min(usersCurrentPage * USERS_PAGE_SIZE, total);
+        if (summary) summary.textContent = `Showing ${startIdx}–${endIdx} of ${total}`;
+        if (indicator) indicator.textContent = `Page ${usersCurrentPage} of ${totalPages}`;
+        if (prevBtn) prevBtn.disabled = usersCurrentPage <= 1;
+        if (nextBtn) nextBtn.disabled = usersCurrentPage >= totalPages;
+    }
+
+    function initUsersTable() {
+        const searchInput = document.getElementById('userSearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                usersCurrentPage = 1;
+                applyUsersTableView();
+            });
+        }
+        document.getElementById('usersPrevPage')?.addEventListener('click', () => {
+            if (usersCurrentPage > 1) {
+                usersCurrentPage--;
+                applyUsersTableView();
+            }
+        });
+        document.getElementById('usersNextPage')?.addEventListener('click', () => {
+            const totalPages = Math.max(1, Math.ceil(usersFilteredRows.length / USERS_PAGE_SIZE));
+            if (usersCurrentPage < totalPages) {
+                usersCurrentPage++;
+                applyUsersTableView();
+            }
+        });
+        applyUsersTableView();
+    }
+
+    document.addEventListener('DOMContentLoaded', initUsersTable);
+
+    async function adminApiErrorMessage(res, fallback) {
+        const data = await res.json().catch(() => ({}));
+        if (data.message) return data.message;
+        if (data.detail) return data.detail;
+        if (res.status === 404) {
+            return 'API not found — stop the app and restart to load the latest build, then try again.';
+        }
+        if (data.error) return `${data.error} (HTTP ${res.status})`;
+        return `${fallback} (HTTP ${res.status})`;
+    }
+
+    function openAddUserModal() {
+        document.getElementById('addDisplayName').value = '';
+        document.getElementById('addEmail').value = '';
+        document.getElementById('addPassword').value = '';
+        document.getElementById('addJobTitle').value = '';
+        document.getElementById('addEnabled').checked = true;
+        const err = document.getElementById('addUserError');
+        err.textContent = '';
+        err.classList.add('hidden');
+        document.getElementById('addUserOverlay').classList.remove('hidden');
+        document.getElementById('addUserModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeAddUserModal() {
+        document.getElementById('addUserOverlay').classList.add('hidden');
+        document.getElementById('addUserModal').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    document.getElementById('addUserBtn').addEventListener('click', openAddUserModal);
+
+    document.getElementById('createUserBtn').addEventListener('click', async () => {
+        const displayName = document.getElementById('addDisplayName').value.trim();
+        const email = document.getElementById('addEmail').value.trim();
+        const password = document.getElementById('addPassword').value;
+        const jobTitle = document.getElementById('addJobTitle').value.trim();
+        const roleCode = document.getElementById('addRoleSelect').value;
+        const enabled = document.getElementById('addEnabled').checked;
+        const errEl = document.getElementById('addUserError');
+
+        const body = { displayName, email, password, roleCode, enabled };
+        if (jobTitle) body.jobTitle = jobTitle;
+
+        try {
+            const res = await fetch('/api/admin/users', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if (!res.ok) {
+                throw new Error(await adminApiErrorMessage(res, 'Failed to create user'));
+            }
+            window.location.reload();
+        } catch (e) {
+            errEl.textContent = e.message || 'Failed to create user.';
+            errEl.classList.remove('hidden');
+        }
+    });
+
+    async function deleteUser(btn) {
+        const userId = btn.dataset.userId;
+        const userName = btn.dataset.userName;
+        if (currentUserId && String(userId) === String(currentUserId)) {
+            alert('You cannot delete your own account.');
+            return;
+        }
+        if (!confirm(`Delete user "${userName}"? This cannot be undone.`)) return;
+        try {
+            const res = await fetch(`/api/admin/users/${userId}`, {
+                method: 'DELETE',
+                credentials: 'same-origin'
+            });
+            if (!res.ok) {
+                throw new Error(await adminApiErrorMessage(res, 'Failed to delete user'));
+            }
+            window.location.reload();
+        } catch (e) {
+            alert(e.message || 'Failed to delete user.');
+        }
+    }
+
+    function openUserDrawer(btn) {
+        selectedUserId = btn.dataset.userId;
+        document.getElementById('drawerUserSubtitle').textContent = btn.dataset.userName;
+        document.getElementById('userRoleSelect').value = btn.dataset.userRole;
+        const enabled = btn.dataset.userEnabled === 'true';
+        document.getElementById('statusActive').checked = enabled;
+        document.getElementById('statusSuspended').checked = !enabled;
+        document.getElementById('userDrawer').classList.add('open');
+        document.getElementById('drawerOverlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeUserDrawer() {
+        document.getElementById('userDrawer').classList.remove('open');
+        document.getElementById('drawerOverlay').classList.remove('open');
+        document.body.style.overflow = '';
+        selectedUserId = null;
+    }
+
+    document.getElementById('saveUserBtn').addEventListener('click', async () => {
+        if (!selectedUserId) return;
+        const roleCode = document.getElementById('userRoleSelect').value;
+        const enabled = document.getElementById('statusActive').checked;
+        try {
+            const roleRes = await fetch(`/api/admin/users/${selectedUserId}/role`, {
+                method: 'PUT',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ roleCode })
+            });
+            if (!roleRes.ok) throw new Error(await adminApiErrorMessage(roleRes, 'Failed to save role'));
+            const statusRes = await fetch(`/api/admin/users/${selectedUserId}/status`, {
+                method: 'PUT',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ enabled })
+            });
+            if (!statusRes.ok) throw new Error(await adminApiErrorMessage(statusRes, 'Failed to save status'));
+            window.location.reload();
+        } catch (e) {
+            alert(e.message || 'Failed to save user changes.');
+        }
+    });
+
+    document.getElementById('saveAllRoleTabs')?.addEventListener('click', async () => {
+        const roleIds = [...new Set(
+            Array.from(document.querySelectorAll('.role-tab-cb')).map(cb => cb.dataset.roleId)
+        )];
+        try {
+            for (const roleId of roleIds) {
+                const tabs = {};
+                document.querySelectorAll(`.role-tab-cb[data-role-id="${roleId}"]`).forEach(cb => {
+                    tabs[cb.dataset.tabId] = cb.checked;
+                });
+                const res = await fetch(`/api/admin/roles/${roleId}/tabs`, {
+                    method: 'PUT',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tabs })
+                });
+                if (!res.ok) throw new Error(await adminApiErrorMessage(res, 'Failed to save role tab access'));
+            }
+            window.location.reload();
+        } catch (e) {
+            alert(e.message || 'Failed to save role tab access.');
+        }
+    });
+
+</script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="light h-full bg-background text-on-surface" lang="en">
+<head>
+<th:block th:replace="~{fragments/head :: head-light(pageTitle='Login')}"/>
+<style>
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        display: inline-block;
+        vertical-align: middle;
+    }
+    .login-canvas {
+        background-color: #f6faff;
+        background-image:
+            radial-gradient(circle at 1px 1px, rgba(187, 198, 226, 0.3) 1px, transparent 0),
+            radial-gradient(circle at center, rgba(246, 250, 255, 0.8) 0%, #f6faff 100%),
+            linear-gradient(to bottom, #e6eff8 0%, #f6faff 100%);
+        background-size: 24px 24px, 100% 100%, 100% 100%;
+        background-attachment: fixed;
+    }
+</style>
+</head>
+<body class="h-full flex flex-col login-canvas opsconsole-app font-body-md">
+<header class="bg-primary text-on-primary docked full-width top-0 border-b border-outline-variant/20 flex justify-between items-center w-full px-gutter h-16 z-50 shrink-0">
+    <div class="flex items-center gap-unit-sm">
+        <span class="material-symbols-outlined text-secondary-fixed">shield_lock</span>
+        <span class="text-title-lg font-title-lg font-bold text-on-primary">OpsConsole</span>
+    </div>
+    <div class="flex items-center gap-unit-md">
+        <span class="text-label-md font-label-md text-on-primary-container">v4.2.0-stable</span>
+    </div>
+</header>
+
+<main class="flex-grow flex items-center justify-center px-4 py-12 pb-28">
+    <div class="w-full max-w-[440px] bg-surface-container-lowest border border-outline-variant/30 rounded-lg p-unit-xl shadow-sm">
+        <div class="mb-unit-xl text-center">
+            <h1 class="text-headline-md font-headline-md text-on-surface mb-unit-xs">Sign in to OpsConsole</h1>
+            <p class="text-body-md font-body-md text-on-surface-variant"
+               th:text="${azureMode} ? 'Use your organization Microsoft account' : 'Enter your credentials to access the infrastructure dashboard'">
+                Enter your credentials
+            </p>
+        </div>
+
+        <div th:if="${loginError}" class="mb-unit-lg flex items-center gap-2 p-3 rounded-lg bg-error/10 border border-error/30 text-error text-body-sm">
+            <span class="material-symbols-outlined text-[20px]">error</span>
+            <span>Invalid email or password. Please try again.</span>
+        </div>
+        <div th:if="${logoutSuccess}" class="mb-unit-lg flex items-center gap-2 p-3 rounded-lg bg-secondary-container/10 border border-secondary-container/30 text-on-surface text-body-sm">
+            <span class="material-symbols-outlined text-[20px] text-secondary-fixed-dim">check_circle</span>
+            <span>You have been signed out successfully.</span>
+        </div>
+
+        <!-- Local email / password (until Azure AD is enabled) -->
+        <form th:if="${devMode}" th:action="@{/login/process}" method="post" class="space-y-unit-lg">
+            <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+            <div class="space-y-2">
+                <label class="text-label-md font-label-md text-on-surface-variant px-1" for="email">Email Address</label>
+                <div class="relative group">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline">mail</span>
+                    <input class="w-full pl-10 pr-4 py-3 bg-white border border-outline-variant rounded-lg text-body-md font-body-md focus:outline-none focus:border-secondary focus:ring-4 focus:ring-secondary/10 transition-all placeholder:text-outline-variant"
+                           id="email" name="email" type="email" placeholder="admin@opsconsole.local" autocomplete="username" required/>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <div class="flex justify-between items-center px-1">
+                    <label class="text-label-md font-label-md text-on-surface-variant" for="password">Password</label>
+                    <span class="text-label-md font-label-md text-outline opacity-70">Dev mode</span>
+                </div>
+                <div class="relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline">lock</span>
+                    <input class="w-full pl-10 pr-12 py-3 bg-white border border-outline-variant rounded-lg text-body-md font-body-md focus:outline-none focus:border-secondary focus:ring-4 focus:ring-secondary/10 transition-all"
+                           id="password" name="password" type="password" placeholder="••••••••" autocomplete="current-password" required/>
+                    <button class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface-variant transition-colors p-1" type="button" onclick="togglePassword()">
+                        <span class="material-symbols-outlined" id="pass-toggle-icon">visibility</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 px-1">
+                <input class="w-4 h-4 rounded border-outline-variant text-secondary focus:ring-secondary" id="remember" name="remember-me" type="checkbox"/>
+                <label class="text-label-md font-label-md text-on-surface-variant cursor-pointer select-none" for="remember">Remember this device for 30 days</label>
+            </div>
+
+            <button class="w-full py-3 bg-secondary text-on-secondary rounded-lg font-title-md text-title-md hover:bg-secondary/90 active:scale-95 transition-all flex items-center justify-center gap-2" type="submit">
+                Sign In
+                <span class="material-symbols-outlined">login</span>
+            </button>
+        </form>
+
+        <!-- Azure AD primary sign-in -->
+        <div th:if="${azureMode}" class="space-y-unit-lg">
+            <a th:href="@{/oauth2/authorization/azure}"
+               class="w-full py-3 bg-[#2F2F2F] hover:bg-[#1a1a1a] text-white rounded-lg font-title-md flex items-center justify-center gap-3 transition-all active:scale-95">
+                <svg class="w-5 h-5 shrink-0" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
+                    <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
+                    <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
+                    <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+                </svg>
+                Sign in with Microsoft
+            </a>
+            <p class="text-body-sm text-on-surface-variant text-center">New users are provisioned automatically on first sign-in.</p>
+        </div>
+
+        <div th:if="${devMode}" class="mt-unit-xl">
+            <div class="relative flex items-center justify-center mb-unit-lg">
+                <div class="w-full border-t border-outline-variant/30"></div>
+                <span class="absolute bg-surface-container-lowest px-4 text-label-sm font-label-sm text-outline uppercase tracking-wider">Or continue with</span>
+            </div>
+            <div class="grid grid-cols-1 gap-unit-md">
+                <button type="button" disabled class="flex items-center justify-center gap-2 py-2.5 border border-outline-variant rounded-lg opacity-50 cursor-not-allowed" title="Enable opsconsole.auth.mode=azure">
+                    <svg class="w-4 h-4 shrink-0" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
+                        <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
+                        <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
+                        <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+                    </svg>
+                    <span class="text-label-md font-label-md text-on-surface-variant">Microsoft Entra ID (Azure AD)</span>
+                </button>
+            </div>
+            <p class="mt-unit-md text-center text-label-sm font-label-sm text-outline leading-relaxed">
+                Dev accounts:<br/>
+                admin@opsconsole.local / Admin@123 (Administrator)<br/>
+                operator@opsconsole.local / Operator@123 (Tester)<br/>
+                viewer@opsconsole.local / Viewer@123 (Monitoring)
+            </p>
+        </div>
+
+        <div th:if="${azureMode}" class="mt-unit-xl">
+            <div class="relative flex items-center justify-center mb-unit-lg">
+                <div class="w-full border-t border-outline-variant/30"></div>
+                <span class="absolute bg-surface-container-lowest px-4 text-label-sm font-label-sm text-outline uppercase tracking-wider">Enterprise SSO</span>
+            </div>
+            <p class="text-body-sm text-on-surface-variant text-center">Local password sign-in is disabled when Azure AD mode is active.</p>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-surface-container-lowest text-on-surface-variant fixed bottom-0 w-full border-t border-outline-variant/30 flex flex-col md:flex-row justify-between items-center px-gutter py-unit-md z-50">
+    <div class="flex items-center gap-unit-sm mb-2 md:mb-0">
+        <span class="text-label-md font-label-md font-semibold text-primary">OpsConsole Infrastructure</span>
+        <span class="text-label-sm font-label-sm opacity-50">|</span>
+        <span class="text-label-sm font-label-sm text-on-surface-variant">© 2024 OpsConsole Infrastructure. Internal Use Only.</span>
+    </div>
+    <div class="flex gap-unit-lg">
+        <span class="text-label-sm font-label-sm text-on-surface-variant opacity-70">Security Policy</span>
+        <span class="text-label-sm font-label-sm text-on-surface-variant opacity-70">System Status</span>
+        <span class="text-label-sm font-label-sm text-on-surface-variant opacity-70">Help Desk</span>
+    </div>
+</footer>
+
+<script>
+    function togglePassword() {
+        const passInput = document.getElementById('password');
+        const icon = document.getElementById('pass-toggle-icon');
+        if (!passInput || !icon) return;
+        if (passInput.type === 'password') {
+            passInput.type = 'text';
+            icon.textContent = 'visibility_off';
+        } else {
+            passInput.type = 'password';
+            icon.textContent = 'visibility';
+        }
+    }
+</script>
+</body>
+</html>

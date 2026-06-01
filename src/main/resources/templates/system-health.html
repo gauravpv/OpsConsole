@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
+<head>
+<th:block th:replace="~{fragments/head :: head(pageTitle='System Health')}"/>
+<style>
+    #register-modal.open { pointer-events: auto; opacity: 1; }
+    #register-modal.open #register-modal-panel { transform: translateY(0); }
+    #register-modal .register-modal-header {
+        padding: 12px 24px;
+    }
+    #register-form {
+        margin: 0;
+        padding: 8px 24px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    #register-form > *:first-child {
+        margin-top: 0;
+    }
+    #health-grid {
+        align-items: stretch;
+    }
+    .health-card,
+    #register-service-card {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .health-card-header {
+        flex-shrink: 0;
+        min-height: 56px;
+        box-sizing: border-box;
+    }
+    .health-card-body {
+        flex: 1 1 auto;
+    }
+    .health-card-last-check {
+        white-space: nowrap;
+        font-size: 0.6875rem;
+        line-height: 1.2;
+        letter-spacing: -0.01em;
+    }
+    @media (min-width: 1280px) {
+        .health-card-last-check {
+            font-size: 0.75rem;
+        }
+    }
+    .health-status-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        width: 56px;
+        min-width: 56px;
+        padding: 4px 0;
+        border-radius: 9999px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        font-weight: 500;
+        line-height: 14px;
+        flex-shrink: 0;
+    }
+    #register-service-card {
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+        gap: 4px;
+        padding: 12px 16px;
+        box-sizing: border-box;
+    }
+    .health-filter-select {
+        appearance: none;
+        padding: 6px 36px 6px 16px;
+        border-radius: 9999px;
+        border: 1px solid transparent;
+        background-color: #e6eff8;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='%2345474d'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        font-weight: 500;
+        line-height: 16px;
+        color: #45474d;
+        cursor: pointer;
+        transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+    }
+    .health-filter-select:hover {
+        background-color: #dbe4ed;
+    }
+    .health-filter-select.filter-active {
+        background-color: #051125;
+        color: #ffffff;
+        border-color: #051125;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='%23ffffff'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    }
+    html.dark .health-filter-select {
+        background-color: #1b263b;
+        color: #dbe4ed;
+    }
+    html.dark .health-filter-select:hover {
+        background-color: #293138;
+    }
+    html.dark .health-filter-select.filter-active {
+        background-color: #0070ea;
+        color: #ffffff;
+        border-color: #0070ea;
+    }
+</style>
+</head>
+<body class="opsconsole-app bg-background text-on-background font-body-md overflow-x-hidden">
+<aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+
+<main class="ml-[240px] min-h-screen">
+<header class="h-16 fixed top-0 right-0 left-[240px] bg-surface border-b border-outline-variant flex items-center justify-between px-unit-xl z-40">
+<div class="flex items-center gap-unit-lg">
+<h2 class="oc-page-title font-headline-sm text-headline-sm font-bold text-primary">System Health</h2>
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input id="health-search" type="search" autocomplete="off" placeholder="Search services..."
+       class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-1.5 pl-10 pr-4 font-body-sm text-body-sm text-on-surface focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20 transition-all"/>
+</div>
+</div>
+<div class="flex items-center gap-unit-md">
+<th:block th:replace="~{fragments/stitch-theme :: theme-toggle}"></th:block>
+<div class="h-8 w-[1px] bg-outline-variant mx-unit-sm"></div>
+<button type="button" id="refresh-now" class="flex items-center gap-unit-xs text-on-surface-variant hover:text-secondary transition-colors" title="Refresh from database">
+<span class="material-symbols-outlined text-[18px]" id="refresh-icon">sync</span>
+<span class="font-label-md text-label-md" id="refresh-countdown" th:text="'Auto-refresh ' + ${refreshSeconds} + 's'">Auto-refresh 30s</span>
+</button>
+<div class="h-8 w-[1px] bg-outline-variant mx-unit-sm"></div>
+<button type="button" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-all">notifications</button>
+<button type="button" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-all">settings</button>
+</div>
+</header>
+
+<div class="pt-24 px-unit-xl pb-unit-xl">
+<div class="flex flex-wrap items-center gap-unit-sm mb-unit-lg">
+<button type="button" id="health-filter-all" class="health-filter-all px-unit-md py-1.5 bg-primary text-on-primary rounded-full font-label-md text-label-md transition-all shadow-sm">
+    All <span class="opacity-80" th:text="|(${summary.total})|">(0)</span>
+</button>
+<select id="health-status-filter" class="health-filter-select" aria-label="Filter by status">
+    <option value="">Status</option>
+    <option value="UP" th:text="|Up (${summary.up})|">Up (0)</option>
+    <option value="DOWN" th:text="|Down (${summary.down})|">Down (0)</option>
+</select>
+<select id="health-env-filter" class="health-filter-select" aria-label="Filter by environment">
+    <option value="">Environment</option>
+    <option value="PROD" th:text="|Prod (${summary.production})|">Prod (0)</option>
+    <option value="UAT" th:text="|UAT (${summary.uat})|">UAT (0)</option>
+</select>
+</div>
+
+<div id="health-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-gutter">
+<div th:each="system : ${systems}"
+     th:data-status="${system.status.name()}"
+     th:data-environment="${system.environment}"
+     th:attr="data-search=${system.name + ' ' + system.host + ' ' + system.port + ' ' + system.environment + ' ' + system.region}"
+     class="health-card bg-surface border border-outline-variant rounded-xl shadow-sm hover:shadow-md transition-all duration-300 group overflow-hidden">
+    <div class="health-card-header px-unit-md py-unit-sm border-b border-outline-variant bg-surface-container-lowest flex items-start justify-between">
+        <div class="min-w-0 pr-2">
+            <h3 class="font-title-md text-title-md text-primary truncate" th:text="${system.name}">Service</h3>
+            <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mt-1 truncate" th:text="${system.subtitle()}">Env • Region</p>
+        </div>
+        <span class="health-status-badge"
+              th:classappend="${system.status.name() == 'UP'} ? ' bg-green-100 text-green-700' : (${system.status.name() == 'DOWN'} ? ' bg-red-100 text-red-700' : ' bg-orange-100 text-orange-700')">
+            <span th:class="${system.status.name() == 'UP'} ? 'w-2 h-2 bg-green-500 rounded-full animate-pulse' : (${system.status.name() == 'DOWN'} ? 'w-2 h-2 bg-red-500 rounded-full' : 'w-2 h-2 bg-orange-500 rounded-full animate-pulse')"></span>
+            <span th:text="${system.statusLabel}">UP</span>
+        </span>
+    </div>
+    <div class="health-card-body px-unit-md pt-unit-sm pb-unit-sm">
+        <div class="flex justify-between items-baseline mb-1 gap-1 min-w-0">
+            <span class="font-body-sm text-body-sm text-on-surface-variant shrink-0">Last check</span>
+            <time class="health-card-last-check font-label-md tabular-nums text-right shrink-0"
+                  th:classappend="${system.status.name() == 'DOWN'} ? 'text-error' : 'text-on-surface'"
+                  th:datetime="${#temporals.format(system.lastChecked, 'yyyy-MM-dd''T''HH:mm:ssXXX')}"
+                  th:text="${#temporals.format(system.lastChecked, 'd MMM yyyy HH:mm:ss')}">29 May 2026 14:30:00</time>
+        </div>
+        <div class="flex justify-between items-center mb-1">
+            <span class="font-body-sm text-body-sm text-on-surface-variant">Response time</span>
+            <span class="font-label-md text-label-md text-on-surface tabular-nums" th:text="${system.responseTimeMs} + ' ms'">0 ms</span>
+        </div>
+        <div class="flex justify-between items-center mb-1">
+            <span class="font-body-sm text-body-sm text-on-surface-variant">IP</span>
+            <span class="font-label-md text-label-md text-on-surface truncate max-w-[55%] text-right" th:text="${system.host}">localhost</span>
+        </div>
+        <div class="flex justify-between items-center">
+            <span class="font-body-sm text-body-sm text-on-surface-variant">Port</span>
+            <span class="font-label-md text-label-md text-on-surface tabular-nums" th:text="${system.port}">8080</span>
+        </div>
+    </div>
+</div>
+
+<button type="button" id="register-service-card"
+        class="border-2 border-dashed border-outline-variant rounded-xl text-on-surface-variant hover:border-secondary hover:text-secondary transition-all group bg-surface-container-lowest/50">
+    <span class="material-symbols-outlined text-[28px] leading-none group-hover:scale-105 transition-transform">add_circle</span>
+    <span class="text-sm font-medium text-on-surface group-hover:text-secondary">Register Service</span>
+</button>
+</div>
+<p id="health-no-results" class="hidden w-full text-center text-on-surface-variant font-body-sm py-8">No systems match your search or filters.</p>
+</div>
+</main>
+
+<div id="register-modal" class="fixed inset-0 z-[60] flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300 bg-primary/80 backdrop-blur-sm p-unit-md">
+<div id="register-modal-panel" class="w-full max-w-lg bg-surface-container-lowest border border-outline-variant rounded-xl shadow-2xl transform translate-y-4 transition-transform duration-300">
+<div class="register-modal-header border-b border-outline-variant flex items-center justify-between gap-3">
+<div class="min-w-0">
+<h3 class="text-lg font-bold leading-tight text-primary">Register Service</h3>
+<p class="text-xs text-on-surface-variant mt-0.5 leading-snug">Add a host to monitor via Spring Actuator</p>
+</div>
+<button type="button" id="register-modal-close" class="p-2 rounded-full hover:bg-surface-container-low text-on-surface-variant shrink-0" aria-label="Close">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<form id="register-form">
+<div id="register-error" class="hidden rounded-lg border border-error/30 bg-red-100 px-3 py-2 text-error text-sm"></div>
+<div>
+<label class="block text-xs font-medium text-on-surface-variant mb-1" for="reg-name">Service name</label>
+<input id="reg-name" name="name" required maxlength="120" placeholder="e.g. Payment Gateway"
+       class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 text-body-sm text-on-surface focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20"/>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-unit-md">
+<div class="sm:col-span-2">
+<label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="reg-host">Host / IP</label>
+<input id="reg-host" name="host" required placeholder="10.0.1.42"
+       class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 text-body-sm text-on-surface focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20"/>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="reg-port">Port</label>
+<input id="reg-port" name="port" type="number" required min="1" max="65535" placeholder="8080"
+       class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 text-body-sm text-on-surface focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20"/>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-unit-md">
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="reg-environment">Environment</label>
+<select id="reg-environment" name="environment" required
+        class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 text-body-sm text-on-surface focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20">
+<option value="">Select environment</option>
+<option value="Production">Production</option>
+<option value="UAT">UAT</option>
+<option value="Development">Development</option>
+</select>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="reg-region">Region</label>
+<input id="reg-region" name="region" placeholder="US-East-1"
+       class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 text-body-sm text-on-surface focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20"/>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="reg-actuator">Actuator path <span class="text-on-surface-variant/70">(optional)</span></label>
+<input id="reg-actuator" name="actuatorPath" placeholder="/actuator/health"
+       class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 text-body-sm text-on-surface focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20"/>
+</div>
+<div class="flex justify-end gap-3 pt-2 mt-1 border-t border-outline-variant">
+<button type="button" id="register-cancel" class="px-unit-lg py-2 rounded-lg border border-outline-variant font-title-md text-title-md text-on-surface hover:bg-surface-container-low transition-all">Cancel</button>
+<button type="submit" id="register-submit" class="px-unit-lg py-2 rounded-lg bg-secondary-container text-on-secondary-container font-title-md text-title-md hover:bg-secondary-container/90 shadow-sm transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]" id="register-submit-icon">save</span>
+<span id="register-submit-label">Save &amp; Monitor</span>
+</button>
+</div>
+</form>
+</div>
+</div>
+
+<div class="fixed top-0 right-0 w-[320px] h-screen bg-surface border-l border-outline-variant shadow-2xl z-50 transform translate-x-full transition-transform duration-300" id="activity-panel">
+<div class="p-unit-lg h-full flex flex-col">
+<div class="flex items-center justify-between mb-unit-lg">
+<h3 class="font-title-lg text-title-lg text-primary">System Activity</h3>
+<button type="button" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container rounded-full p-1" onclick="document.getElementById('activity-panel').classList.add('translate-x-full')">close</button>
+</div>
+<div class="flex-1 overflow-y-auto space-y-unit-md pr-2 custom-scrollbar">
+<div class="p-unit-sm rounded-lg border border-outline-variant hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-unit-sm mb-1">
+<span class="material-symbols-outlined text-secondary text-[18px]">info</span>
+<span class="font-label-md text-label-md text-secondary">Health Monitor</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface">Actuator checks run on each page load and every 30 seconds.</p>
+</div>
+</div>
+</div>
+</div>
+<button type="button" class="fixed bottom-unit-lg right-unit-lg w-14 h-14 bg-secondary text-on-secondary rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-40 group" onclick="document.getElementById('activity-panel').classList.toggle('translate-x-full')">
+<span class="material-symbols-outlined">history</span>
+<div class="absolute right-16 px-3 py-1 bg-primary text-on-primary text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">View History</div>
+</button>
+
+<script th:inline="javascript">
+    const refreshSeconds = /*[[${refreshSeconds}]]*/ 30;
+    let countdown = refreshSeconds;
+    const refreshText = document.getElementById('refresh-countdown');
+    const refreshNowBtn = document.getElementById('refresh-now');
+    const refreshIcon = document.getElementById('refresh-icon');
+
+    setInterval(() => {
+        countdown--;
+        if (countdown <= 0) {
+            window.location.reload();
+            return;
+        }
+        refreshText.textContent = `Auto-refresh ${countdown}s`;
+    }, 1000);
+
+    refreshNowBtn.addEventListener('click', async () => {
+        refreshIcon.classList.add('animate-spin');
+        refreshNowBtn.disabled = true;
+        try {
+            await fetch('/api/health/refresh', { method: 'POST' });
+        } finally {
+            window.location.reload();
+        }
+    });
+
+    const filterAllBtn = document.getElementById('health-filter-all');
+    const statusFilterSelect = document.getElementById('health-status-filter');
+    const envFilterSelect = document.getElementById('health-env-filter');
+    const cards = document.querySelectorAll('.health-card');
+    const searchInput = document.getElementById('health-search');
+    const noResults = document.getElementById('health-no-results');
+    let statusFilter = '';
+    let envFilter = '';
+
+    function matchesFilter(card) {
+        if (statusFilter && card.dataset.status !== statusFilter) return false;
+        const env = (card.dataset.environment || '').toLowerCase();
+        if (envFilter === 'PROD' && env !== 'production') return false;
+        if (envFilter === 'UAT' && env !== 'uat') return false;
+        return true;
+    }
+
+    function matchesSearch(card) {
+        const q = searchInput.value.trim().toLowerCase();
+        return !q || (card.dataset.search || '').toLowerCase().includes(q);
+    }
+
+    function syncFilterStyles() {
+        const showAll = !statusFilter && !envFilter;
+        filterAllBtn.classList.toggle('bg-primary', showAll);
+        filterAllBtn.classList.toggle('text-on-primary', showAll);
+        filterAllBtn.classList.toggle('shadow-sm', showAll);
+        filterAllBtn.classList.toggle('bg-surface-container', !showAll);
+        filterAllBtn.classList.toggle('text-on-surface-variant', !showAll);
+        statusFilterSelect.classList.toggle('filter-active', !!statusFilter);
+        envFilterSelect.classList.toggle('filter-active', !!envFilter);
+    }
+
+    function applyVisibility() {
+        let visible = 0;
+        cards.forEach(card => {
+            const show = matchesFilter(card) && matchesSearch(card);
+            card.classList.toggle('hidden', !show);
+            if (show) visible++;
+        });
+        if (noResults) noResults.classList.toggle('hidden', visible > 0 || cards.length === 0);
+        syncFilterStyles();
+    }
+
+    filterAllBtn.addEventListener('click', () => {
+        statusFilter = '';
+        envFilter = '';
+        statusFilterSelect.value = '';
+        envFilterSelect.value = '';
+        applyVisibility();
+    });
+
+    statusFilterSelect.addEventListener('change', () => {
+        statusFilter = statusFilterSelect.value;
+        applyVisibility();
+    });
+
+    envFilterSelect.addEventListener('change', () => {
+        envFilter = envFilterSelect.value;
+        applyVisibility();
+    });
+
+    searchInput.addEventListener('input', applyVisibility);
+    searchInput.addEventListener('click', e => e.stopPropagation());
+    applyVisibility();
+
+    const registerModal = document.getElementById('register-modal');
+    const registerForm = document.getElementById('register-form');
+    const registerError = document.getElementById('register-error');
+    const registerSubmit = document.getElementById('register-submit');
+    const registerSubmitIcon = document.getElementById('register-submit-icon');
+    const registerSubmitLabel = document.getElementById('register-submit-label');
+
+    function openRegisterModal() {
+        registerError.classList.add('hidden');
+        registerError.textContent = '';
+        registerForm.reset();
+        registerModal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        document.getElementById('reg-name').focus();
+    }
+
+    function closeRegisterModal() {
+        registerModal.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    document.getElementById('register-service-card').addEventListener('click', openRegisterModal);
+    document.getElementById('register-modal-close').addEventListener('click', closeRegisterModal);
+    document.getElementById('register-cancel').addEventListener('click', closeRegisterModal);
+    registerModal.addEventListener('click', e => {
+        if (e.target === registerModal) closeRegisterModal();
+    });
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && registerModal.classList.contains('open')) {
+            closeRegisterModal();
+        }
+    });
+
+    registerForm.addEventListener('submit', async e => {
+        e.preventDefault();
+        registerError.classList.add('hidden');
+        registerSubmit.disabled = true;
+        registerSubmitIcon.textContent = 'progress_activity';
+        registerSubmitIcon.classList.add('animate-spin');
+        registerSubmitLabel.textContent = 'Saving...';
+
+        const payload = {
+            name: document.getElementById('reg-name').value.trim(),
+            host: document.getElementById('reg-host').value.trim(),
+            port: parseInt(document.getElementById('reg-port').value, 10),
+            environment: document.getElementById('reg-environment').value,
+            region: document.getElementById('reg-region').value.trim() || null,
+            actuatorPath: document.getElementById('reg-actuator').value.trim() || null
+        };
+
+        try {
+            const response = await fetch('/api/health/monitors', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                registerError.textContent = data.message || 'Could not register service.';
+                registerError.classList.remove('hidden');
+                return;
+            }
+            window.location.reload();
+        } catch (err) {
+            registerError.textContent = 'Network error. Please try again.';
+            registerError.classList.remove('hidden');
+        } finally {
+            registerSubmit.disabled = false;
+            registerSubmitIcon.textContent = 'save';
+            registerSubmitIcon.classList.remove('animate-spin');
+            registerSubmitLabel.textContent = 'Save & Monitor';
+        }
+    });
+</script>
+</body>
+</html>
