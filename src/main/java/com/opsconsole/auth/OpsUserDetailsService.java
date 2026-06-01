@@ -7,8 +7,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-
 @Service
 public class OpsUserDetailsService implements UserDetailsService {
 
@@ -19,7 +17,7 @@ public class OpsUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         AppUser user = userRepository.findByEmailIgnoreCase(username.trim())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -30,9 +28,6 @@ public class OpsUserDetailsService implements UserDetailsService {
         if (!user.hasLocalPassword()) {
             throw new BadCredentialsException("Use Microsoft sign-in for this account");
         }
-
-        user.setLastLoginAt(Instant.now());
-        userRepository.save(user);
 
         return OpsUserPrincipal.fromUser(user);
     }

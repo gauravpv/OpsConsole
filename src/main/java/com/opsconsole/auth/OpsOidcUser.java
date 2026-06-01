@@ -12,10 +12,12 @@ public class OpsOidcUser implements OidcUser {
 
     private final OidcUser delegate;
     private final AppUser appUser;
+    private final Collection<? extends GrantedAuthority> authorities;
 
     public OpsOidcUser(OidcUser delegate, AppUser appUser) {
         this.delegate = delegate;
         this.appUser = appUser;
+        this.authorities = OpsUserPrincipal.fromUser(appUser).getAuthorities();
     }
 
     public AppUser getAppUser() {
@@ -44,7 +46,7 @@ public class OpsOidcUser implements OidcUser {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return OpsUserPrincipal.fromUser(appUser).getAuthorities();
+        return authorities;
     }
 
     @Override

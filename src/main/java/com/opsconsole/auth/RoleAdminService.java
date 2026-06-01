@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -33,18 +35,40 @@ public class RoleAdminService {
         this.activityFeedService = activityFeedService;
     }
 
+    @Transactional(readOnly = true)
     public List<AppUser> allUsers() {
         return userRepository.findAllByOrderByDisplayNameAsc();
     }
 
+    @Transactional(readOnly = true)
     public List<AppRole> allRoles() {
         return roleRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public List<RoleTabAccessView> tabMatrixForRole(Long roleId) {
         return tabAccessRepository.findByRoleIdOrderByTabAsc(roleId).stream()
                 .map(rta -> new RoleTabAccessView(rta.getTab(), rta.isAllowed()))
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Map<Long, Map<String, Boolean>> tabMatrixForAllRoles() {
+        Map<Long, Map<String, Boolean>> result = new LinkedHashMap<>();
+        for (AppRole role : roleRepository.findAll()) {
+            Map<String, Boolean> flags = new LinkedHashMap<>();
+            for (AppTab tab : AppTab.values()) {
+                flags.put(tab.id(), false);
+            }
+            result.put(role.getId(), flags);
+        }
+        for (RoleTabAccess access : tabAccessRepository.findAll()) {
+            Map<String, Boolean> flags = result.get(access.getRole().getId());
+            if (flags != null) {
+                flags.put(access.getTab().id(), access.isAllowed());
+            }
+        }
+        return result;
     }
 
     @Transactional
@@ -122,9 +146,7 @@ public class RoleAdminService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         if (AuthDataInitializer.CODE_ADMINISTRATOR.equals(user.getRole().getCode())) {
-            long adminCount = userRepository.findAll().stream()
-                    .filter(u -> AuthDataInitializer.CODE_ADMINISTRATOR.equals(u.getRole().getCode()))
-                    .count();
+            long adminCount = userRepository.countByRole_Code(AuthDataInitializer.CODE_ADMINISTRATOR);
             if (adminCount <= 1) {
                 throw new IllegalArgumentException("Cannot delete the last Administrator account");
             }
@@ -138,16 +160,23 @@ public class RoleAdminService {
         AppRole role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new IllegalArgumentException("Role not found"));
 
+        Map<AppTab, RoleTabAccess> existing = new LinkedHashMap<>();
+        for (RoleTabAccess entry : tabAccessRepository.findByRoleIdOrderByTabAsc(roleId)) {
+            existing.put(entry.getTab(), entry);
+        }
+
+        List<RoleTabAccess> toSave = new ArrayList<>();
         for (AppTab tab : AppTab.values()) {
             boolean allowed = Boolean.TRUE.equals(tabAccess.get(tab.id()));
-            RoleTabAccess entry = tabAccessRepository.findByRole_IdAndTab(roleId, tab);
+            RoleTabAccess entry = existing.get(tab);
             if (entry == null) {
-                tabAccessRepository.save(new RoleTabAccess(role, tab, allowed));
+                toSave.add(new RoleTabAccess(role, tab, allowed));
             } else {
                 entry.setAllowed(allowed);
-                tabAccessRepository.save(entry);
+                toSave.add(entry);
             }
         }
+        tabAccessRepository.saveAll(toSave);
         activityFeedService.recordRoleTabsChanged(actor, role);
     }
 

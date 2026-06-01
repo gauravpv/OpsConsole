@@ -19,7 +19,7 @@ class HealthHistoryServiceTest {
 
     @Test
     void chartLast24Hours_usesRecordedSnapshots() {
-        Instant base = Instant.parse("2026-05-29T10:00:00Z");
+        Instant base = Instant.now().minusSeconds(300);
         history.record(4, 2, base);
         history.record(4, 3, base.plusSeconds(60));
         history.record(4, 4, base.plusSeconds(120));

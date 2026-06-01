@@ -12,4 +12,6 @@ public interface AppUserRepository extends JpaRepository<AppUser, Long> {
     Optional<AppUser> findByEmailIgnoreCase(String email);
 
     List<AppUser> findAllByOrderByDisplayNameAsc();
+
+    long countByRole_Code(String roleCode);
 }

@@ -9,6 +9,8 @@ public interface RoleTabAccessRepository extends JpaRepository<RoleTabAccess, Lo
 
     List<RoleTabAccess> findByRoleIdOrderByTabAsc(Long roleId);
 
+    List<RoleTabAccess> findByRoleIdAndAllowedTrue(Long roleId);
+
     RoleTabAccess findByRole_IdAndTab(Long roleId, AppTab tab);
 
     boolean existsByRoleIdAndTabAndAllowedTrue(Long roleId, AppTab tab);

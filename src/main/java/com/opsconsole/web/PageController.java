@@ -38,7 +38,7 @@ public class PageController {
 
     @GetMapping("/")
     public String dashboard(Model model) {
-        healthMonitor.refresh();
+        healthMonitor.refreshIfStale();
         model.addAttribute("summary", healthMonitor.summary());
         model.addAttribute("servicesUpChart", healthMonitor.servicesUpChart());
         model.addAttribute("activities", activityFeedService.recent(DASHBOARD_ACTIVITY_LIMIT));

@@ -17,6 +17,9 @@ public class WebMvcAuthConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(navAccessInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/login", "/login/process", "/logout", "/oauth2/**", "/auth/**", "/error", "/css/**", "/js/**", "/h2-console/**");
+                .excludePathPatterns(
+                        "/login", "/login/process", "/logout", "/oauth2/**", "/auth/**",
+                        "/error", "/css/**", "/js/**", "/h2-console/**", "/api/**"
+                );
     }
 }

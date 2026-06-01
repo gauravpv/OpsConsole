@@ -2,8 +2,12 @@ package com.opsconsole.auth;
 
 import org.springframework.stereotype.Service;
 
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class NavAccessService {
@@ -15,16 +19,20 @@ public class NavAccessService {
     }
 
     public boolean canAccess(AppUser user, AppTab tab) {
-        if (user == null || !user.isEnabled()) {
+        if (user == null || !user.isEnabled() || tab == null) {
             return false;
         }
-        return tabAccessRepository.existsByRoleIdAndTabAndAllowedTrue(user.getRole().getId(), tab);
+        return allowedTabs(user).contains(tab);
     }
 
     public Map<String, Boolean> navAccessMap(AppUser user) {
+        if (user == null || !user.isEnabled()) {
+            return Map.of();
+        }
+        Set<AppTab> allowed = allowedTabs(user);
         Map<String, Boolean> map = new LinkedHashMap<>();
         for (AppTab tab : AppTab.values()) {
-            map.put(tab.id(), canAccess(user, tab));
+            map.put(tab.id(), allowed.contains(tab));
         }
         return map;
     }
@@ -39,5 +47,13 @@ public class NavAccessService {
             }
         }
         return null;
+    }
+
+    private Set<AppTab> allowedTabs(AppUser user) {
+        List<RoleTabAccess> rows = tabAccessRepository.findByRoleIdAndAllowedTrue(user.getRole().getId());
+        if (rows.isEmpty()) {
+            return EnumSet.noneOf(AppTab.class);
+        }
+        return rows.stream().map(RoleTabAccess::getTab).collect(Collectors.toCollection(() -> EnumSet.noneOf(AppTab.class)));
     }
 }

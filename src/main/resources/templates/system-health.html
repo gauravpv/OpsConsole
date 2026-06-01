@@ -297,10 +297,9 @@
     setInterval(() => {
         countdown--;
         if (countdown <= 0) {
-            window.location.reload();
-            return;
+            countdown = refreshSeconds;
         }
-        refreshText.textContent = `Auto-refresh ${countdown}s`;
+        refreshText.textContent = `Next refresh ${countdown}s`;
     }, 1000);
 
     refreshNowBtn.addEventListener('click', async () => {

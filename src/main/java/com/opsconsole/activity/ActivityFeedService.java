@@ -158,8 +158,18 @@ public class ActivityFeedService {
     }
 
     public List<ActivityEvent> recent(int limit) {
-        List<ActivityEvent> copy = new ArrayList<>(events);
-        return copy.stream().limit(Math.max(limit, 0)).toList();
+        if (limit <= 0) {
+            return List.of();
+        }
+        List<ActivityEvent> result = new ArrayList<>(Math.min(limit, events.size()));
+        int count = 0;
+        for (ActivityEvent event : events) {
+            result.add(event);
+            if (++count >= limit) {
+                break;
+            }
+        }
+        return result;
     }
 
     private static ActivityEvent event(

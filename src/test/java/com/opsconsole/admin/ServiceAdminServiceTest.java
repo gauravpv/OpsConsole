@@ -5,7 +5,6 @@ import com.opsconsole.auth.AppUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -32,6 +31,9 @@ class ServiceAdminServiceTest {
     private AdminActionLogRepository actionLogRepository;
 
     @Mock
+    private AdminActionLogger actionLogger;
+
+    @Mock
     private SshRemoteExecutor sshRemoteExecutor;
 
     @Mock
@@ -48,6 +50,7 @@ class ServiceAdminServiceTest {
                 serverRepository,
                 serviceRepository,
                 actionLogRepository,
+                actionLogger,
                 sshRemoteExecutor,
                 activityFeedService
         );
@@ -83,10 +86,7 @@ class ServiceAdminServiceTest {
 
         assertThat(result.success()).isTrue();
         assertThat(result.message()).contains("started");
-        ArgumentCaptor<AdminActionLog> logCaptor = ArgumentCaptor.forClass(AdminActionLog.class);
-        verify(actionLogRepository).save(logCaptor.capture());
-        assertThat(logCaptor.getValue().getAction()).isEqualTo(AdminAction.START);
-        assertThat(logCaptor.getValue().getStatus()).isEqualTo(AdminActionStatus.SUCCESS);
+        verify(actionLogger).log(eq(actor), eq(service), eq(AdminAction.START), any(SshCommandResult.class));
         verify(activityFeedService).recordServiceControl(actor, "payment-api", AdminAction.START, true);
     }
 
@@ -100,9 +100,7 @@ class ServiceAdminServiceTest {
                 .isInstanceOf(ServiceAdminException.class)
                 .hasMessageContaining("STOP failed");
 
-        ArgumentCaptor<AdminActionLog> logCaptor = ArgumentCaptor.forClass(AdminActionLog.class);
-        verify(actionLogRepository).save(logCaptor.capture());
-        assertThat(logCaptor.getValue().getStatus()).isEqualTo(AdminActionStatus.FAILED);
+        verify(actionLogger).log(eq(actor), eq(service), eq(AdminAction.STOP), any(SshCommandResult.class));
         verify(activityFeedService).recordServiceControl(actor, "payment-api", AdminAction.STOP, false);
     }
 
@@ -130,7 +128,7 @@ class ServiceAdminServiceTest {
         ServiceAdminService.PropertiesContent content = serviceAdminService.readProperties(1L);
 
         assertThat(content.content()).isEqualTo("key=value");
-        verifyNoInteractions(actionLogRepository);
+        verifyNoInteractions(actionLogger);
         verifyNoInteractions(activityFeedService);
     }
 

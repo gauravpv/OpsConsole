@@ -2,6 +2,7 @@ package com.opsconsole.admin;
 
 import com.opsconsole.activity.ActivityFeedService;
 import com.opsconsole.auth.AppUser;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ServiceAdminService {
@@ -24,6 +26,7 @@ public class ServiceAdminService {
     private final ManagedServerRepository serverRepository;
     private final ManagedServiceRepository serviceRepository;
     private final AdminActionLogRepository actionLogRepository;
+    private final AdminActionLogger actionLogger;
     private final SshRemoteExecutor sshRemoteExecutor;
     private final ActivityFeedService activityFeedService;
 
@@ -31,35 +34,44 @@ public class ServiceAdminService {
             ManagedServerRepository serverRepository,
             ManagedServiceRepository serviceRepository,
             AdminActionLogRepository actionLogRepository,
+            AdminActionLogger actionLogger,
             SshRemoteExecutor sshRemoteExecutor,
             ActivityFeedService activityFeedService
     ) {
         this.serverRepository = serverRepository;
         this.serviceRepository = serviceRepository;
         this.actionLogRepository = actionLogRepository;
+        this.actionLogger = actionLogger;
         this.sshRemoteExecutor = sshRemoteExecutor;
         this.activityFeedService = activityFeedService;
     }
 
+    @Transactional(readOnly = true)
     public List<ServerView> listServers() {
-        List<ServerView> views = new ArrayList<>();
-        for (ManagedServer server : serverRepository.findByEnabledTrueOrderByNameAsc()) {
-            List<ServiceSummaryView> services = serviceRepository
-                    .findByServer_IdAndEnabledTrueOrderByCategoryAscNameAsc(server.getId())
-                    .stream()
+        List<ManagedServer> servers = serverRepository.findByEnabledTrueOrderByNameAsc();
+        Map<Long, List<ManagedService>> servicesByServerId = serviceRepository.findByEnabledTrueWithServer()
+                .stream()
+                .collect(Collectors.groupingBy(s -> s.getServer().getId(), LinkedHashMap::new, Collectors.toList()));
+
+        List<ServerView> views = new ArrayList<>(servers.size());
+        for (ManagedServer server : servers) {
+            List<ManagedService> services = servicesByServerId.getOrDefault(server.getId(), List.of());
+            String host = server.getHost();
+            List<ServiceSummaryView> summaries = services.parallelStream()
                     .map(s -> new ServiceSummaryView(
                             s.getId(),
                             s.getName(),
                             s.getCategory(),
                             s.getPort(),
-                            probePort(server.getHost(), s.getPort())
+                            probePort(host, s.getPort())
                     ))
                     .toList();
-            views.add(new ServerView(server.getId(), server.getName(), server.getHost(), services));
+            views.add(new ServerView(server.getId(), server.getName(), host, summaries));
         }
         return views;
     }
 
+    @Transactional(readOnly = true)
     public ServiceDetailView getServiceDetail(Long serviceId) {
         ManagedService service = requireService(serviceId);
         ManagedServer server = service.getServer();
@@ -81,22 +93,18 @@ public class ServiceAdminService {
         );
     }
 
-    @Transactional
     public OperationResult startService(Long serviceId, AppUser actor) {
         return runScript(serviceId, actor, AdminAction.START, requireService(serviceId).getStartScript());
     }
 
-    @Transactional
     public OperationResult stopService(Long serviceId, AppUser actor) {
         return runScript(serviceId, actor, AdminAction.STOP, requireService(serviceId).getStopScript());
     }
 
-    @Transactional
     public OperationResult restartService(Long serviceId, AppUser actor) {
         return runScript(serviceId, actor, AdminAction.RESTART, requireService(serviceId).getRestartScript());
     }
 
-    @Transactional
     public PropertiesContent readProperties(Long serviceId) {
         ManagedService service = requireService(serviceId);
         AdminPathValidator.validatePropertiesPath(service.getPropertiesPath());
@@ -108,7 +116,6 @@ public class ServiceAdminService {
         return new PropertiesContent(result.stdout());
     }
 
-    @Transactional
     public OperationResult writeProperties(Long serviceId, AppUser actor, String content) {
         if (content == null) {
             throw new IllegalArgumentException("Properties content is required");
@@ -124,7 +131,7 @@ public class ServiceAdminService {
                 "sudo cp " + path + " " + path + ".bak." + backupSuffix
         );
         if (!backup.success()) {
-            logAction(actor, service, AdminAction.PROPS_WRITE,
+            actionLogger.log(actor, service, AdminAction.PROPS_WRITE,
                     new SshCommandResult(backup.exitCode(), backup.stdout(), "Backup failed: " + backup.stderr()));
             throw new ServiceAdminException("Failed to backup properties: " + summarize(backup));
         }
@@ -133,7 +140,7 @@ public class ServiceAdminService {
                 "sudo tee " + path,
                 content
         );
-        logAction(actor, service, AdminAction.PROPS_WRITE, write);
+        actionLogger.log(actor, service, AdminAction.PROPS_WRITE, write);
         if (!write.success()) {
             throw new ServiceAdminException("Failed to write properties: " + summarize(write));
         }
@@ -141,33 +148,18 @@ public class ServiceAdminService {
         return OperationResult.ok(summarize(write));
     }
 
+    @Transactional(readOnly = true)
     public List<AdminActionLog> recentActions(int limit) {
         if (limit <= 0 || limit > 100) {
             limit = 20;
         }
-        return actionLogRepository.findTop20ByActionNotOrderByCreatedAtDesc(AdminAction.PROPS_READ).stream()
-                .limit(limit)
-                .toList();
+        return actionLogRepository.findByActionNotOrderByCreatedAtDesc(
+                AdminAction.PROPS_READ,
+                PageRequest.of(0, limit)
+        );
     }
 
-    public Map<Long, List<ServiceSummaryView>> servicesByServerId() {
-        Map<Long, List<ServiceSummaryView>> map = new LinkedHashMap<>();
-        for (ManagedServer server : serverRepository.findByEnabledTrueOrderByNameAsc()) {
-            map.put(server.getId(), serviceRepository
-                    .findByServer_IdAndEnabledTrueOrderByCategoryAscNameAsc(server.getId())
-                    .stream()
-                    .map(s -> new ServiceSummaryView(
-                            s.getId(),
-                            s.getName(),
-                            s.getCategory(),
-                            s.getPort(),
-                            probePort(server.getHost(), s.getPort())
-                    ))
-                    .toList());
-        }
-        return map;
-    }
-
+    @Transactional(readOnly = true)
     public ManagedService requireService(Long serviceId) {
         return serviceRepository.findByIdAndEnabledTrue(serviceId)
                 .orElseThrow(() -> new IllegalArgumentException("Service not found"));
@@ -177,24 +169,12 @@ public class ServiceAdminService {
         AdminPathValidator.validateScriptPath(scriptPath, action.name().toLowerCase() + "Script");
         ManagedService service = requireService(serviceId);
         SshCommandResult result = sshRemoteExecutor.execute(service.getServer(), scriptPath);
-        logAction(actor, service, action, result);
+        actionLogger.log(actor, service, action, result);
         activityFeedService.recordServiceControl(actor, service.getName(), action, result.success());
         if (!result.success()) {
             throw new ServiceAdminException(action.name() + " failed: " + summarize(result));
         }
         return OperationResult.ok(summarize(result));
-    }
-
-    private void logAction(AppUser actor, ManagedService service, AdminAction action, SshCommandResult result) {
-        actionLogRepository.save(new AdminActionLog(
-                actor.getId(),
-                actor.getDisplayName(),
-                service.getId(),
-                service.getName(),
-                action,
-                result.success() ? AdminActionStatus.SUCCESS : AdminActionStatus.FAILED,
-                summarize(result)
-        ));
     }
 
     private static String summarize(SshCommandResult result) {

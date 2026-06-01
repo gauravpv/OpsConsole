@@ -52,7 +52,7 @@ class HealthControllerTest {
                 .andExpect(view().name("system-health"))
                 .andExpect(model().attribute("activeNav", "health"));
 
-        verify(healthMonitor).refresh();
+        verify(healthMonitor).refreshIfStale();
     }
 
     @Test

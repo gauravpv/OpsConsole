@@ -5,6 +5,7 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -19,6 +20,7 @@ public class SystemHealthMonitor {
     private final ActuatorHealthService healthService;
     private final ActivityFeedService activityFeedService;
     private final HealthHistoryService healthHistoryService;
+    private final HealthProperties healthProperties;
     private final Object refreshLock = new Object();
     private final AtomicReference<List<SystemHealthView>> latest =
             new AtomicReference<>(Collections.emptyList());
@@ -29,12 +31,14 @@ public class SystemHealthMonitor {
             MonitoredHostRepository repository,
             ActuatorHealthService healthService,
             ActivityFeedService activityFeedService,
-            HealthHistoryService healthHistoryService
+            HealthHistoryService healthHistoryService,
+            HealthProperties healthProperties
     ) {
         this.repository = repository;
         this.healthService = healthService;
         this.activityFeedService = activityFeedService;
         this.healthHistoryService = healthHistoryService;
+        this.healthProperties = healthProperties;
     }
 
     @PostConstruct
@@ -45,6 +49,14 @@ public class SystemHealthMonitor {
     @Scheduled(fixedRateString = "${opsconsole.health.refresh-interval-ms:30000}")
     public void scheduledRefresh() {
         refresh();
+    }
+
+    public void refreshIfStale() {
+        Instant last = lastRefreshedAt;
+        long maxAgeMs = healthProperties.getHealth().getRefreshIntervalMs();
+        if (last == null || Duration.between(last, Instant.now()).toMillis() >= maxAgeMs) {
+            refresh();
+        }
     }
 
     public void refresh() {

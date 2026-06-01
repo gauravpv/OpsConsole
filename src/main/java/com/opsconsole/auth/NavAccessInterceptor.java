@@ -5,8 +5,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import java.util.Map;
+
 @Component
 public class NavAccessInterceptor implements HandlerInterceptor {
+
+    public static final String NAV_ACCESS_ATTRIBUTE = "opsconsole.navAccess";
 
     private final NavAccessService navAccessService;
 
@@ -22,18 +26,22 @@ public class NavAccessInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        AppTab tab = navAccessService.tabForPath(path);
-        if (tab == null) {
-            return true;
-        }
-
         AppUser user = CurrentUser.userOrNull();
         if (user == null) {
             return true;
         }
 
-        if (!navAccessService.canAccess(user, tab)) {
-            String redirect = navAccessService.canAccess(user, AppTab.DASHBOARD) ? "/?denied=1" : "/login?error";
+        Map<String, Boolean> navAccess = navAccessService.navAccessMap(user);
+        request.setAttribute(NAV_ACCESS_ATTRIBUTE, navAccess);
+
+        AppTab tab = navAccessService.tabForPath(path);
+        if (tab == null) {
+            return true;
+        }
+
+        if (!Boolean.TRUE.equals(navAccess.get(tab.id()))) {
+            boolean canDashboard = Boolean.TRUE.equals(navAccess.get(AppTab.DASHBOARD.id()));
+            String redirect = canDashboard ? "/?denied=1" : "/login?error";
             response.sendRedirect(redirect);
             return false;
         }

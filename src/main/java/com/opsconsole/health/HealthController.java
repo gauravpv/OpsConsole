@@ -34,7 +34,7 @@ public class HealthController {
 
     @GetMapping("/health")
     public String systemHealth(Model model) {
-        healthMonitor.refresh();
+        healthMonitor.refreshIfStale();
         model.addAttribute("activeNav", NavPage.HEALTH.id());
         model.addAttribute("systems", healthMonitor.getSystems());
         model.addAttribute("summary", healthMonitor.summary());
@@ -46,7 +46,7 @@ public class HealthController {
     @GetMapping("/api/health/systems")
     @ResponseBody
     public List<SystemHealthView> systemsApi() {
-        healthMonitor.refresh();
+        healthMonitor.refreshIfStale();
         return healthMonitor.getSystems();
     }
 
