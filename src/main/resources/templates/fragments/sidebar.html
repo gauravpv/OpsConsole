@@ -8,7 +8,7 @@
 
        class="opsconsole-sidebar w-[240px] h-screen fixed left-0 top-0 bg-primary border-r border-outline-variant flex flex-col py-unit-lg z-50">
 
-    <div class="px-unit-lg mb-unit-xl">
+    <div class="px-unit-lg mb-unit-xl oc-sidebar-header">
 
         <div class="flex items-center gap-unit-sm">
 
@@ -18,13 +18,19 @@
 
             </div>
 
-            <div>
+            <div class="oc-sidebar-brand-text flex-1 min-w-0">
 
                 <h1 class="font-headline-sm text-headline-sm font-bold text-on-primary leading-none">OpsConsole</h1>
 
                 <p class="text-[10px] text-on-primary-container uppercase tracking-widest mt-1">DevOps Platform</p>
 
             </div>
+
+            <button type="button" id="ocSidebarToggle" class="oc-sidebar-toggle" aria-expanded="true" title="Collapse sidebar" aria-label="Collapse sidebar">
+
+                <span class="material-symbols-outlined text-[20px]">chevron_left</span>
+
+            </button>
 
         </div>
 
@@ -36,11 +42,13 @@
 
            th:classappend="${activeNav == 'dashboard'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
 
-           class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200">
+           class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200"
+
+           title="Dashboard">
 
             <span class="material-symbols-outlined">dashboard</span>
 
-            <span class="font-body-md text-body-md">Dashboard</span>
+            <span class="font-body-md text-body-md oc-sidebar-label">Dashboard</span>
 
         </a>
 
@@ -48,11 +56,13 @@
 
            th:classappend="${activeNav == 'health'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
 
-           class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200">
+           class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200"
+
+           title="System Health">
 
             <span class="material-symbols-outlined">monitor_heart</span>
 
-            <span class="font-body-md text-body-md">System Health</span>
+            <span class="font-body-md text-body-md oc-sidebar-label">System Health</span>
 
         </a>
 
@@ -60,11 +70,41 @@
 
            th:classappend="${activeNav == 'api-tester'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
 
-           class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200">
+           class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200"
+
+           title="API Tester">
 
             <span class="material-symbols-outlined">api</span>
 
-            <span class="font-body-md text-body-md">API Tester</span>
+            <span class="font-body-md text-body-md oc-sidebar-label">API Tester</span>
+
+        </a>
+
+        <a th:if="${navAccess == null or navAccess['tester'] == true}" th:href="@{/tester}"
+
+           th:classappend="${activeNav == 'tester'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
+
+           class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200"
+
+           title="Tester">
+
+            <span class="material-symbols-outlined">science</span>
+
+            <span class="font-body-md text-body-md oc-sidebar-label">Tester</span>
+
+        </a>
+
+        <a th:if="${navAccess == null or navAccess['dev-utils'] == true}" th:href="@{/dev-utils}"
+
+           th:classappend="${activeNav == 'dev-utils'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
+
+           class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200"
+
+           title="Developer Utils">
+
+            <span class="material-symbols-outlined">build</span>
+
+            <span class="font-body-md text-body-md oc-sidebar-label">Developer Utils</span>
 
         </a>
 
@@ -72,11 +112,13 @@
 
            th:classappend="${activeNav == 'admin'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
 
-           class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200">
+           class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200"
+
+           title="System Admin">
 
             <span class="material-symbols-outlined">admin_panel_settings</span>
 
-            <span class="font-body-md text-body-md">System Admin</span>
+            <span class="font-body-md text-body-md oc-sidebar-label">System Admin</span>
 
         </a>
 
@@ -84,11 +126,13 @@
 
            th:classappend="${activeNav == 'users'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
 
-           class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200">
+           class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200"
+
+           title="User Admin">
 
             <span class="material-symbols-outlined">group</span>
 
-            <span class="font-body-md text-body-md">User Admin</span>
+            <span class="font-body-md text-body-md oc-sidebar-label">User Admin</span>
 
         </a>
 
@@ -96,19 +140,21 @@
 
            th:classappend="${activeNav == 'logs'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
 
-           class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200">
+           class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200"
+
+           title="Logs Watch">
 
             <span class="material-symbols-outlined">analytics</span>
 
-            <span class="font-body-md text-body-md">Logs Watch</span>
+            <span class="font-body-md text-body-md oc-sidebar-label">Logs Watch</span>
 
         </a>
 
     </nav>
 
-    <div class="px-unit-lg mt-auto pt-unit-lg space-y-unit-sm">
+    <div class="px-unit-lg mt-auto pt-unit-lg space-y-unit-sm oc-sidebar-footer">
 
-        <div th:if="${currentUser != null}" class="p-unit-sm bg-primary-container rounded-lg border border-outline-variant/20">
+        <div th:if="${currentUser != null}" class="p-unit-sm bg-primary-container rounded-lg border border-outline-variant/20 oc-sidebar-user-card">
 
             <p class="text-[11px] font-label-sm text-on-primary-container truncate" th:text="${currentUser.displayName}">User</p>
 
@@ -119,11 +165,11 @@
         <form th:action="@{/logout}" method="post" class="w-full">
             <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
-            <button type="submit" class="w-full flex items-center justify-center gap-2 px-unit-sm py-2 rounded-lg text-on-primary-container/80 hover:bg-primary-container/80 hover:text-on-primary text-body-sm transition-colors">
+            <button type="submit" class="w-full flex items-center justify-center gap-2 px-unit-sm py-2 rounded-lg text-on-primary-container/80 hover:bg-primary-container/80 hover:text-on-primary text-body-sm transition-colors" title="Sign out">
 
                 <span class="material-symbols-outlined text-[18px]">logout</span>
 
-                Sign out
+                <span class="oc-sidebar-signout-text">Sign out</span>
 
             </button>
 
@@ -136,4 +182,3 @@
 </body>
 
 </html>
-

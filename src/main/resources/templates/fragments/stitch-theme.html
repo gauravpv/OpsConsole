@@ -7,10 +7,14 @@
         var t = localStorage.getItem('opsconsole-theme');
         document.documentElement.classList.remove('light', 'dark');
         document.documentElement.classList.add(t === 'dark' ? 'dark' : 'light');
+        if (localStorage.getItem('opsconsole-sidebar-collapsed') === 'true') {
+            document.documentElement.classList.add('sidebar-collapsed');
+        }
     })();
 </script>
 <link rel="stylesheet" th:href="@{/css/opsconsole.css}"/>
 <script defer th:src="@{/js/stitch-theme.js}"></script>
+<script defer th:src="@{/js/opsconsole-sidebar.js}"></script>
 </th:block>
 <th:block th:fragment="theme-head-light">
 <script>

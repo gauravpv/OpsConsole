@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
+<head>
+<th:block th:replace="~{fragments/head :: head(pageTitle='Developer Utils')}"/>
+<link rel="stylesheet" th:href="@{/css/developer-utils.css}"/>
+</head>
+<body class="opsconsole-app bg-background text-on-background font-body-md overflow-hidden h-screen flex">
+<aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+<main class="flex-1 ml-[240px] flex flex-col h-screen">
+<th:block th:insert="~{fragments/page-shell :: page-header(title='Developer Utils', searchPlaceholder='', searchId='', showSearch=false, fixed=false, showNotifications=true, showSettings=true, showUser=false)}">
+    <th:block th:fragment="headerLeading">
+        <p id="duHeaderDesc" class="font-body-sm text-on-surface-variant truncate hidden lg:block max-w-md mr-unit-md">Format, compare, encode, and transform data locally</p>
+        <button type="button" id="duHeaderCollapseBtn" class="du-btn du-btn-secondary" title="Toggle toolbox sidebar">
+            <span class="material-symbols-outlined text-[18px]" id="duHeaderCollapseIcon">left_panel_close</span>
+        </button>
+    </th:block>
+</th:block>
+<div id="duLayout" class="du-layout flex-1 flex overflow-hidden min-h-0 relative">
+<section id="duToolbox" class="du-toolbox w-72 border-r border-outline-variant bg-surface flex flex-col shrink-0">
+<div class="p-unit-md border-b border-outline-variant space-y-3">
+<div class="flex items-center justify-between gap-2">
+<h3 class="font-title-md text-title-md text-on-surface du-toolbox-title">Toolbox</h3>
+<button type="button" id="duCollapseBtn" class="du-btn du-btn-ghost p-1.5" title="Collapse toolbox">
+<span class="material-symbols-outlined text-[20px]">chevron_left</span>
+</button>
+</div>
+<div class="du-search-wrap">
+<span class="du-search-icon material-symbols-outlined" aria-hidden="true">search</span>
+<input id="duToolSearch" type="search" class="du-sidebar-search" placeholder="Search tools…  Ctrl+K" autocomplete="off" aria-label="Search tools"/>
+</div>
+</div>
+<nav id="duToolNav" class="flex-1 overflow-y-auto custom-scrollbar pb-unit-md"></nav>
+</section>
+<button type="button" id="duExpandBtn" class="du-toolbox-expand" title="Show toolbox">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+<section class="du-workspace-area flex-1 flex flex-col bg-surface-container-lowest overflow-hidden min-w-0 p-unit-md">
+<div id="duWorkspace" class="flex-1 flex flex-col min-h-0"></div>
+</section>
+</div>
+<th:block th:replace="~{fragments/page-shell :: page-footer(hint='Developer utilities — runs locally in your browser')}"/>
+</main>
+<script th:src="@{/js/developer-utils.js}"></script>
+</body>
+</html>

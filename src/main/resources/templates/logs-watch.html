@@ -15,32 +15,9 @@
 </head>
 <body class="opsconsole-app bg-background text-on-background font-body-md overflow-hidden">
 <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
-<header class="h-16 fixed top-0 right-0 left-[240px] bg-surface border-b border-outline-variant flex items-center justify-between px-unit-xl z-40">
-<div class="flex items-center gap-unit-lg">
-<h2 class="oc-page-title font-headline-sm text-headline-sm font-bold text-primary">Logs Watch</h2>
-<div class="h-8 w-[1px] bg-outline-variant"></div>
-<div class="flex items-center gap-unit-sm bg-surface-container px-unit-md py-1.5 rounded-lg border border-outline-variant">
-<span class="material-symbols-outlined text-on-surface-variant text-[20px]" data-icon="search">search</span>
-<input class="bg-transparent border-none focus:ring-0 text-body-md w-64 placeholder:text-on-surface-variant" placeholder="Search logs..." type="text"/>
-</div>
-</div>
-<div class="flex items-center gap-unit-md">
-<th:block th:replace="~{fragments/stitch-theme :: theme-toggle}"></th:block>
-<div class="h-8 w-[1px] bg-outline-variant mx-unit-sm"></div>
-<div class="flex items-center gap-unit-sm mr-unit-md">
-<button class="p-2 rounded-full hover:bg-surface-container-low transition-all text-on-surface-variant cursor-pointer">
-<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
-</button>
-<button class="p-2 rounded-full hover:bg-surface-container-low transition-all text-on-surface-variant cursor-pointer">
-<span class="material-symbols-outlined" data-icon="settings">settings</span>
-</button>
-</div>
-<div class="flex items-center gap-unit-sm">
-<img alt="User Avatar" class="w-8 h-8 rounded-full border border-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4sqOh_2UqlGHmUKya77oieI8yi2Jzcfxsf_0mO7Rumeodr85iIwm2i1NJkxzDqLhhLqS-fJ87yf234symrosNJusFwmog__4uIqZK5pOLvvz7ZOedYHEpwbdfOOuevQSWtYoN_qLgV8luS095ViCxsAXUDqVdtPBfWIgSl2-JKW5aTXyRUwKzXkiouIEhEmof3S4C4vpFvyShzUzB126PcDurlwToxqAimDOcC8n4D5OreY2DamtRppkC22tBm2hps7sShidPJCI"/>
-</div>
-</div>
-</header>
-<main class="pt-16 pl-[240px] h-screen flex flex-col bg-surface overflow-hidden">
+<th:block th:replace="~{fragments/page-shell :: page-header(title='Logs Watch', searchPlaceholder='Search logs...', searchId='logs-search', showSearch=true, fixed=true, showNotifications=true, showSettings=true, showUser=false)}"/>
+<main class="ml-[240px] h-screen flex flex-col">
+<div class="oc-page-main--fixed flex-1 flex flex-col bg-surface overflow-hidden min-h-0">
 <div class="px-unit-xl py-unit-sm bg-surface flex items-center justify-between border-b border-outline-variant shrink-0">
 <div class="flex items-center gap-unit-md">
 <div class="relative group">
@@ -161,6 +138,8 @@
 </div>
 </aside>
 </div>
+</div>
+<th:block th:replace="~{fragments/page-shell :: page-footer(hint='Live log streaming')}"/>
 </main>
 <script>
         // Log stream simulation

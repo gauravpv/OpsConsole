@@ -1,0 +1,72 @@
+package com.opsconsole.auth.service;
+
+import com.opsconsole.config.OpsConsoleFeaturesProperties;
+import org.springframework.stereotype.Service;
+
+import java.util.EnumSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import com.opsconsole.auth.domain.AppTab;
+import com.opsconsole.auth.domain.AppUser;
+import com.opsconsole.auth.domain.RoleTabAccess;
+import com.opsconsole.auth.repository.RoleTabAccessRepository;
+@Service
+public class NavAccessService {
+
+    private final RoleTabAccessRepository tabAccessRepository;
+    private final OpsConsoleFeaturesProperties features;
+
+    public NavAccessService(
+            RoleTabAccessRepository tabAccessRepository,
+            OpsConsoleFeaturesProperties features
+    ) {
+        this.tabAccessRepository = tabAccessRepository;
+        this.features = features;
+    }
+
+    public boolean canAccess(AppUser user, AppTab tab) {
+        if (user == null || !user.isEnabled() || tab == null || isTabDisabled(tab)) {
+            return false;
+        }
+        return allowedTabs(user).contains(tab);
+    }
+
+    public Map<String, Boolean> navAccessMap(AppUser user) {
+        if (user == null || !user.isEnabled()) {
+            return Map.of();
+        }
+        Set<AppTab> allowed = allowedTabs(user);
+        Map<String, Boolean> map = new LinkedHashMap<>();
+        for (AppTab tab : AppTab.values()) {
+            map.put(tab.id(), !isTabDisabled(tab) && allowed.contains(tab));
+        }
+        return map;
+    }
+
+    public AppTab tabForPath(String path) {
+        if (path == null || path.isBlank() || "/".equals(path)) {
+            return AppTab.DASHBOARD;
+        }
+        for (AppTab tab : AppTab.values()) {
+            if (tab.path().equals(path)) {
+                return tab;
+            }
+        }
+        return null;
+    }
+
+    private boolean isTabDisabled(AppTab tab) {
+        return tab == AppTab.API_TESTER && !features.isApiTesterEnabled();
+    }
+
+    private Set<AppTab> allowedTabs(AppUser user) {
+        List<RoleTabAccess> rows = tabAccessRepository.findByRoleIdAndAllowedTrue(user.getRole().getId());
+        if (rows.isEmpty()) {
+            return EnumSet.noneOf(AppTab.class);
+        }
+        return rows.stream().map(RoleTabAccess::getTab).collect(Collectors.toCollection(() -> EnumSet.noneOf(AppTab.class)));
+    }
+}

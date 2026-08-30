@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Unified app page header (matches System Dashboard / System Health) -->
+<header th:fragment="page-header (title, searchPlaceholder, searchId, showSearch, fixed, showNotifications, showSettings, showUser)"
+        class="opsconsole-header oc-page-header h-16 bg-surface border-b border-outline-variant flex items-center px-unit-xl z-40"
+        th:classappend="${fixed} ? ' oc-page-header--fixed' : ' shrink-0 w-full'">
+    <div class="oc-page-header__start flex items-center gap-unit-lg min-w-0">
+        <h2 class="oc-page-title font-headline-sm text-headline-sm font-bold text-primary shrink-0" th:text="${title}">Page</h2>
+        <div th:if="${showSearch and searchPlaceholder != null}"
+             class="oc-page-header__search relative max-w-md ml-unit-xl">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg pointer-events-none">search</span>
+            <input type="search"
+                   class="oc-page-header__search-input w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 pl-10 pr-4 text-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all"
+                   th:id="${searchId}"
+                   th:placeholder="${searchPlaceholder}"
+                   autocomplete="off"/>
+        </div>
+    </div>
+    <div class="oc-page-header__actions flex items-center gap-unit-md shrink-0">
+        <th:block th:insert="~{::headerLeading} ?: ~{::empty}"/>
+        <th:block th:replace="~{fragments/stitch-theme :: theme-toggle}"/>
+        <th:block th:insert="~{::headerExtra} ?: ~{::empty}"/>
+        <th:block th:if="${showNotifications}">
+            <div class="oc-header-divider h-8 w-[1px] bg-outline-variant mx-unit-sm"></div>
+            <button type="button" class="oc-header-icon-btn p-2 hover:bg-surface-container-low rounded-full transition-all text-on-surface-variant" title="Notifications">
+                <span class="material-symbols-outlined">notifications</span>
+            </button>
+        </th:block>
+        <th:block th:if="${showSettings}">
+            <button type="button" class="oc-header-icon-btn p-2 hover:bg-surface-container-low rounded-full transition-all text-on-surface-variant" title="Settings">
+                <span class="material-symbols-outlined">settings</span>
+            </button>
+        </th:block>
+        <th:block th:if="${showUser}">
+            <div class="oc-header-divider h-8 w-[1px] bg-outline-variant mx-unit-sm"></div>
+            <div class="flex items-center gap-unit-sm">
+                <div class="text-right hidden sm:block">
+                    <p class="font-title-md text-body-sm text-on-surface leading-none">Alex Rivera</p>
+                    <p class="text-[10px] text-on-surface-variant font-medium">Sr. Site Reliability Engineer</p>
+                </div>
+                <img alt="User avatar" class="w-9 h-9 rounded-full object-cover border border-outline-variant"
+                     src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2eB0_ynFJToPIPNeQY88YcXjeeLTwvGAagtmUiQgQhr202Y5fBSHcoNz7b0qjcKEI9H5lsnetzqn5bsrjVlXWp1GREf6Iqsmlu11EvFzQn0hEMBUsITQPM57sNhBwUvNl8IsHAHPnChlH1kosjpU9wi2vVBNDu-lM1ENR6B0AC8YlwSYF7j4tf1jscvn37SVf6HEhpCflzscKsw4VoHsUESiiGqz1eo3lXIU_MXJJISfWYptM4jKXkd7p_B1rHDPCSCFaURgdRRM"/>
+            </div>
+        </th:block>
+    </div>
+</header>
+
+<th:block th:fragment="empty"></th:block>
+
+<!-- Unified app page footer -->
+<footer th:fragment="page-footer (hint)"
+        class="oc-page-footer shrink-0 flex items-center justify-between gap-unit-md px-unit-xl py-unit-sm bg-surface border-t border-outline-variant text-body-sm text-on-surface-variant">
+    <div class="oc-page-footer__start flex items-center gap-unit-sm min-w-0">
+        <span class="font-semibold text-on-surface">OpsConsole</span>
+        <span class="opacity-40" aria-hidden="true">·</span>
+        <span class="truncate" th:text="${hint}">Internal operations workspace</span>
+    </div>
+    <div class="oc-page-footer__end flex items-center gap-unit-md shrink-0">
+        <th:block th:insert="~{::footerExtra} ?: ~{::empty}"/>
+    </div>
+</footer>
+
+</body>
+</html>

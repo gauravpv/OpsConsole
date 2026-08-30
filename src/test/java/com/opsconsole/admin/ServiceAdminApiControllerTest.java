@@ -1,8 +1,8 @@
 package com.opsconsole.admin;
 
-import com.opsconsole.auth.AppUser;
-import com.opsconsole.auth.AppUserRepository;
-import com.opsconsole.auth.OpsUserPrincipal;
+import com.opsconsole.auth.domain.AppUser;
+import com.opsconsole.auth.repository.AppUserRepository;
+import com.opsconsole.auth.domain.OpsUserPrincipal;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+import com.opsconsole.admin.repository.ManagedServiceRepository;
 @SpringBootTest
 @AutoConfigureMockMvc
 class ServiceAdminApiControllerTest {

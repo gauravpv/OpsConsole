@@ -11,14 +11,7 @@
 <div class="flex h-screen w-full">
 <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
 <main class="ml-[240px] flex-1 flex flex-col h-screen overflow-hidden bg-background">
-<header class="h-16 flex items-center justify-between px-unit-xl w-full bg-surface border-b border-outline-variant z-40">
-<div class="flex items-center gap-unit-lg">
-<h1 class="oc-page-title font-headline-sm text-headline-sm font-bold text-primary">System Administration</h1>
-</div>
-<div class="flex items-center gap-unit-md">
-<th:block th:replace="~{fragments/stitch-theme :: theme-toggle}"></th:block>
-</div>
-</header>
+<th:block th:replace="~{fragments/page-shell :: page-header(title='System Administration', searchPlaceholder='', searchId='', showSearch=false, fixed=false, showNotifications=true, showSettings=true, showUser=false)}"/>
 <div class="flex-1 overflow-y-auto p-unit-xl space-y-unit-lg custom-scrollbar">
 <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-unit-md">
 <div class="flex flex-col gap-unit-xs">
@@ -138,7 +131,7 @@ No managed servers configured. Add entries under <code class="text-secondary-fix
 <span class="font-body-md text-body-md text-on-surface" th:text="${log.actorDisplayName}">operator</span>
 </td>
 <td class="px-unit-lg py-3">
-<span class="font-body-md text-body-md font-medium text-on-surface" th:text="${T(com.opsconsole.admin.AdminActionLabels).label(log.action)}">Action</span>
+<span class="font-body-md text-body-md font-medium text-on-surface" th:text="${T(com.opsconsole.admin.util.AdminActionLabels).label(log.action)}">Action</span>
 </td>
 <td class="px-unit-lg py-3">
 <span class="font-body-sm text-body-sm text-on-surface-variant" th:text="${log.serviceName}">service</span>
@@ -157,6 +150,7 @@ No managed servers configured. Add entries under <code class="text-secondary-fix
 </div>
 </div>
 </div>
+<th:block th:replace="~{fragments/page-shell :: page-footer(hint='Service administration and audit log')}"/>
 </main>
 </div>
 <div class="fixed inset-0 z-[60] flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300" id="confirmationOverlay">

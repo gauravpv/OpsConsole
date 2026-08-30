@@ -2,283 +2,252 @@
 <html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
 <head>
 <th:block th:replace="~{fragments/head :: head(pageTitle='API Tester')}"/>
-<style>
-    .method-get { color: #28A745; }
-    .method-post { color: #0070ea; }
-    .method-put { color: #a28963; }
-    .method-delete { color: #ba1a1a; }
-    html.dark .method-get { color: #4ade80; }
-    html.dark .method-post { color: #adc7ff; }
-    html.dark .method-put { color: #dfc299; }
-    html.dark .method-delete { color: #ff8a80; }
-</style>
+<link rel="stylesheet" th:href="@{/css/api-tester.css}"/>
 </head>
 <body class="opsconsole-app bg-background text-on-background font-body-md overflow-hidden h-screen flex">
 <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
-<main class="flex-1 ml-[240px] flex flex-col h-screen">
-<header class="h-16 flex items-center justify-between px-unit-xl w-full bg-surface border-b border-outline-variant z-40">
-<div class="flex items-center gap-unit-lg flex-1">
-<h2 class="oc-page-title font-headline-sm text-headline-sm font-bold text-primary">API Tester</h2>
-<div class="max-w-md w-full relative">
-<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg pl-10 pr-4 py-1.5 font-body-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="Search API endpoints..." type="text"/>
+<main class="flex-1 ml-[240px] flex flex-col h-screen at-main">
+<th:block th:insert="~{fragments/page-shell :: page-header(title='API Tester', searchPlaceholder='', searchId='', showSearch=false, fixed=false, showNotifications=true, showSettings=true, showUser=false)}">
+    <th:block th:fragment="headerLeading">
+        <button id="atNewBtn" type="button" class="at-btn at-btn-secondary" title="New request">
+            <span class="material-symbols-outlined">add</span><span>New</span>
+        </button>
+        <button id="atSaveBtn" type="button" class="at-btn at-btn-secondary" title="Save to collection">
+            <span class="material-symbols-outlined">bookmark_add</span><span>Save</span>
+        </button>
+        <button id="atCurlBtn" type="button" class="at-btn at-btn-secondary" title="Copy as cURL">
+            <span class="material-symbols-outlined">terminal</span><span>cURL</span>
+        </button>
+    </th:block>
+</th:block>
+
+<div class="at-layout">
+<!-- Collections -->
+<section id="atCollectionsPanel" class="at-side-panel at-side-left">
+<div class="at-side-header">
+<button id="atToggleCollections" type="button" class="at-side-toggle" title="Collapse collections">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<h3 class="at-side-title">Collections</h3>
+<button id="atAddCollectionBtn" type="button" class="at-icon-btn" title="New collection">
+<span class="material-symbols-outlined">create_new_folder</span>
+</button>
+</div>
+<div class="at-side-search">
+<div class="at-search-wrap">
+<span class="material-symbols-outlined at-search-icon">search</span>
+<input id="atCollectionSearch" type="search" placeholder="Filter…" autocomplete="off" aria-label="Filter collections"/>
 </div>
 </div>
-<div class="flex items-center gap-unit-md">
-<th:block th:replace="~{fragments/stitch-theme :: theme-toggle}"></th:block>
-<div class="h-8 w-[1px] bg-outline-variant mx-unit-sm"></div>
-<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-all cursor-pointer">notifications</button>
-<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-all cursor-pointer">settings</button>
-<div class="w-8 h-8 rounded-full bg-outline-variant overflow-hidden">
-<img alt="User Avatar" class="w-full h-full object-cover" data-alt="A professional close-up portrait of a technology professional with a neutral expression. The background is a clean, softly blurred corporate office with cool blue and grey tones. The lighting is bright and even, reflecting a modern light-mode design aesthetic suitable for a high-end DevOps platform interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDK8RDlQWl8rRRncqiKKWh2u32afjNUiJBqngDhTkmpGqYxnK8UeJ7mQwXJIw_K1TYHfQ1S2VsvzP6REBciZxPL6ySsAXg4vQBfBb3mEeoP3VL2FcznnPeUvlRobe-F8VUiRwFyBmZq884LvaG5jRvJUUsCkue7b6geg5BDaQ49otcyacvT7OW1rGuyCHs4UYfly66anf7ZVexUjnVO_OeEKILdGFvqMAgwBkhelNPFc7aCIM4pVunC4fPVHTwpAbmaq2f1YstaZOU"/>
-</div>
-</div>
-</header>
-<div class="flex-1 flex overflow-hidden">
-<section class="w-64 border-r border-outline-variant bg-surface flex flex-col">
-<div class="p-unit-md border-b border-outline-variant flex items-center justify-between">
-<h3 class="font-title-md text-title-md text-on-surface">Collections</h3>
-<button class="material-symbols-outlined text-secondary text-[20px] hover:bg-secondary-container/10 p-1 rounded transition-colors">add_box</button>
-</div>
-<div class="flex-1 overflow-y-auto custom-scrollbar p-unit-sm">
-<div class="mb-unit-sm">
-<div class="flex items-center gap-2 px-2 py-1.5 hover:bg-surface-container rounded cursor-pointer group">
-<span class="material-symbols-outlined text-on-surface-variant text-[18px]">folder_open</span>
-<span class="font-body-md text-on-surface font-medium flex-1">Auth Service</span>
-</div>
-<div class="ml-6 space-y-0.5 mt-1">
-<div class="flex items-center gap-2 px-2 py-1 hover:bg-surface-container rounded cursor-pointer">
-<span class="font-label-sm text-[10px] w-8 method-post">POST</span>
-<span class="font-body-sm text-on-surface-variant truncate">/v1/login</span>
-</div>
-<div class="flex items-center gap-2 px-2 py-1 hover:bg-surface-container rounded cursor-pointer">
-<span class="font-label-sm text-[10px] w-8 method-post">POST</span>
-<span class="font-body-sm text-on-surface-variant truncate">/v1/refresh</span>
-</div>
-</div>
-</div>
-<div class="mb-unit-sm">
-<div class="flex items-center gap-2 px-2 py-1.5 hover:bg-surface-container rounded cursor-pointer">
-<span class="material-symbols-outlined text-on-surface-variant text-[18px]">folder</span>
-<span class="font-body-md text-on-surface font-medium flex-1">Payments</span>
-</div>
-</div>
-<div class="mb-unit-sm">
-<div class="flex items-center gap-2 px-2 py-1.5 hover:bg-surface-container rounded cursor-pointer">
-<span class="material-symbols-outlined text-on-surface-variant text-[18px]">folder_open</span>
-<span class="font-body-md text-on-surface font-medium flex-1">User Management</span>
-</div>
-<div class="ml-6 space-y-0.5 mt-1">
-<div class="flex items-center gap-2 px-2 py-1 bg-secondary/10 border-l-2 border-secondary rounded-r cursor-pointer">
-<span class="font-label-sm text-[10px] w-8 method-get">GET</span>
-<span class="font-body-sm text-secondary truncate">/users/list</span>
-</div>
-<div class="flex items-center gap-2 px-2 py-1 hover:bg-surface-container rounded cursor-pointer">
-<span class="font-label-sm text-[10px] w-8 method-put">PUT</span>
-<span class="font-body-sm text-on-surface-variant truncate">/users/{id}</span>
-</div>
-<div class="flex items-center gap-2 px-2 py-1 hover:bg-surface-container rounded cursor-pointer">
-<span class="font-label-sm text-[10px] w-8 method-delete">DEL</span>
-<span class="font-body-sm text-on-surface-variant truncate">/users/{id}</span>
-</div>
-</div>
-</div>
-</div>
+<div id="atCollectionsList" class="at-side-body custom-scrollbar"></div>
 </section>
-<section class="flex-1 flex flex-col bg-surface-container-lowest overflow-hidden">
-<div class="flex-1 flex flex-col border-b border-outline-variant p-unit-lg min-h-0">
-<div class="flex gap-unit-sm mb-unit-lg">
-<div class="relative min-w-[100px]">
-<select class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2 font-label-md text-secondary appearance-none cursor-pointer focus:ring-1 focus:ring-secondary">
+
+<!-- Workspace -->
+<section class="at-workspace">
+<div id="atRequestPane" class="at-workspace-card at-request-pane">
+<div class="at-card-header">
+<span class="at-card-label">
+<span class="material-symbols-outlined at-card-icon">outgoing_mail</span>
+Request
+</span>
+</div>
+<div class="at-composer">
+<div class="at-url-bar">
+<div id="atMethodWrap" class="at-method-wrap at-method-get">
+<select id="atMethod" class="at-method-select" aria-label="HTTP method">
 <option>GET</option>
 <option>POST</option>
 <option>PUT</option>
-<option>DELETE</option>
 <option>PATCH</option>
+<option>DELETE</option>
+<option>HEAD</option>
+<option>OPTIONS</option>
 </select>
-<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">arrow_drop_down</span>
+<span class="material-symbols-outlined at-method-chevron">expand_more</span>
 </div>
-<input class="flex-1 bg-surface border border-outline-variant rounded-lg px-4 py-2 font-label-md focus:ring-1 focus:ring-secondary outline-none" type="text" value="https://api.opsconsole.internal/v1/users/list?active=true"/>
-<button class="bg-secondary text-white px-unit-lg py-2 rounded-lg font-title-md hover:bg-secondary/90 transition-colors shadow-sm flex items-center gap-2">
-<span>Send</span>
-<span class="material-symbols-outlined text-[18px]">send</span>
+<div class="at-url-field">
+<input id="atUrl" class="at-url-input" type="url" placeholder="https://api.example.com/endpoint" spellcheck="false" aria-label="Request URL"/>
+</div>
+<button id="atSendBtn" type="button" class="at-btn at-btn-primary at-send-btn">
+<span class="at-send-label">Send</span>
+<span class="material-symbols-outlined">send</span>
 </button>
 </div>
-<div class="flex-1 flex flex-col min-h-0">
-<div class="flex gap-unit-lg border-b border-outline-variant mb-unit-md">
-<button class="px-2 py-2 border-b-2 border-secondary text-secondary font-title-md">Params</button>
-<button class="px-2 py-2 text-on-surface-variant font-title-md hover:text-on-surface">Auth</button>
-<button class="px-2 py-2 text-on-surface-variant font-title-md hover:text-on-surface">Headers</button>
-<button class="px-2 py-2 text-on-surface-variant font-title-md hover:text-on-surface">Body</button>
-<button class="px-2 py-2 text-on-surface-variant font-title-md hover:text-on-surface">Scripts</button>
 </div>
-<div class="flex-1 overflow-y-auto custom-scrollbar">
-<table class="w-full text-left font-body-sm">
-<thead class="bg-surface-container-low text-on-surface-variant font-bold text-[11px] uppercase tracking-wider">
-<tr>
-<th class="px-4 py-2 border-b border-outline-variant w-8"></th>
-<th class="px-4 py-2 border-b border-outline-variant">Key</th>
-<th class="px-4 py-2 border-b border-outline-variant">Value</th>
-<th class="px-4 py-2 border-b border-outline-variant">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="border-b border-outline-variant hover:bg-surface">
-<td class="px-4 py-2"><input checked="" class="rounded border-outline text-secondary focus:ring-secondary" type="checkbox"/></td>
-<td class="px-4 py-2 font-label-md text-secondary">active</td>
-<td class="px-4 py-2 font-label-md">true</td>
-<td class="px-4 py-2 text-on-surface-variant">Filter for active accounts only</td>
-</tr>
-<tr class="border-b border-outline-variant hover:bg-surface">
-<td class="px-4 py-2"><input checked="" class="rounded border-outline text-secondary focus:ring-secondary" type="checkbox"/></td>
-<td class="px-4 py-2 font-label-md text-secondary">limit</td>
-<td class="px-4 py-2 font-label-md">25</td>
-<td class="px-4 py-2 text-on-surface-variant">Results per page</td>
-</tr>
-<tr class="hover:bg-surface">
-<td class="px-4 py-2"><input class="rounded border-outline text-secondary focus:ring-secondary" type="checkbox"/></td>
-<td class="px-4 py-2 font-label-md text-outline-variant">Key</td>
-<td class="px-4 py-2 font-label-md text-outline-variant">Value</td>
-<td class="px-4 py-2 text-on-surface-variant">Description</td>
-</tr>
-</tbody>
+
+<div class="at-card-body">
+<nav class="at-tab-bar at-builder-tabs" aria-label="Request options">
+<button type="button" class="at-tab at-tab-active" data-builder-tab="params">Params <span id="atParamsBadge" class="at-tab-badge hidden">0</span></button>
+<button type="button" class="at-tab" data-builder-tab="headers">Headers <span id="atHeadersBadge" class="at-tab-badge hidden">0</span></button>
+<button type="button" class="at-tab" data-builder-tab="auth">Auth</button>
+<button type="button" class="at-tab" data-builder-tab="body">Body</button>
+</nav>
+
+<div class="at-panel-stack">
+<div class="at-panel at-panel-active" data-builder-panel="params">
+<div class="at-panel-toolbar">
+<button id="atAddParamBtn" type="button" class="at-link-btn"><span class="material-symbols-outlined">add</span> Add param</button>
+</div>
+<div class="at-kv-card custom-scrollbar">
+<table class="at-kv-table">
+<thead><tr><th class="at-col-check"></th><th>Key</th><th>Value</th><th class="at-col-action"></th></tr></thead>
+<tbody id="atParamsBody"></tbody>
 </table>
 </div>
 </div>
+
+<div class="at-panel" data-builder-panel="headers">
+<div class="at-panel-toolbar">
+<button id="atAddHeaderBtn" type="button" class="at-link-btn"><span class="material-symbols-outlined">add</span> Add header</button>
+<button id="atPresetHeadersBtn" type="button" class="at-link-btn"><span class="material-symbols-outlined">data_object</span> JSON preset</button>
 </div>
-<div class="flex-1 flex flex-col min-h-0 bg-surface">
-<div class="px-unit-lg py-2 border-b border-outline-variant flex items-center justify-between">
-<div class="flex items-center gap-unit-lg">
-<h4 class="font-title-md text-on-surface">Response</h4>
-<div class="flex items-center gap-unit-md text-label-sm">
-<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">200 OK</span>
-<span class="text-on-surface-variant">Time: <span class="text-on-surface">42ms</span></span>
-<span class="text-on-surface-variant">Size: <span class="text-on-surface">1.2 KB</span></span>
-</div>
-</div>
-<div class="flex gap-2">
-<button class="material-symbols-outlined text-on-surface-variant text-[20px] p-1.5 hover:bg-surface-container rounded transition-all">content_copy</button>
-<button class="material-symbols-outlined text-on-surface-variant text-[20px] p-1.5 hover:bg-surface-container rounded transition-all">save</button>
+<div class="at-kv-card custom-scrollbar">
+<table class="at-kv-table">
+<thead><tr><th class="at-col-check"></th><th>Key</th><th>Value</th><th class="at-col-action"></th></tr></thead>
+<tbody id="atHeadersBody"></tbody>
+</table>
 </div>
 </div>
-<div class="flex-1 flex flex-col min-h-0">
-<div class="flex gap-unit-lg px-unit-lg pt-2 border-b border-outline-variant">
-<button class="px-2 py-1.5 border-b-2 border-secondary text-secondary font-label-md">Pretty</button>
-<button class="px-2 py-1.5 text-on-surface-variant font-label-md">Raw</button>
-<button class="px-2 py-1.5 text-on-surface-variant font-label-md">Preview</button>
-<button class="px-2 py-1.5 text-on-surface-variant font-label-md">Headers</button>
+
+<div class="at-panel" data-builder-panel="auth">
+<div class="at-form-card">
+<label class="at-field-label" for="atAuthType">Authorization type</label>
+<select id="atAuthType" class="at-input">
+<option value="none">No Auth</option>
+<option value="bearer">Bearer Token</option>
+<option value="basic">Basic Auth</option>
+</select>
+<div id="atAuthNoneHint" class="at-info-box">
+<span class="material-symbols-outlined">info</span>
+<p>No authorization header will be sent. Choose Bearer or Basic to add credentials.</p>
 </div>
-<div class="flex-1 overflow-y-auto custom-scrollbar p-unit-lg bg-[#fdfdfd] font-label-md text-on-surface leading-relaxed">
-<pre class="whitespace-pre-wrap"><span class="text-blue-600">{</span>
-  <span class="text-secondary">"status"</span>: <span class="text-green-700">"success"</span>,
-  <span class="text-secondary">"data"</span>: <span class="text-blue-600">[</span>
-    <span class="text-blue-600">{</span>
-      <span class="text-secondary">"id"</span>: <span class="text-amber-700">10283</span>,
-      <span class="text-secondary">"username"</span>: <span class="text-green-700">"j.smith"</span>,
-      <span class="text-secondary">"email"</span>: <span class="text-green-700">"john.smith@opsconsole.internal"</span>,
-      <span class="text-secondary">"roles"</span>: <span class="text-blue-600">[</span><span class="text-green-700">"admin"</span>, <span class="text-green-700">"developer"</span><span class="text-blue-600">]</span>,
-      <span class="text-secondary">"active"</span>: <span class="text-blue-700">true</span>,
-      <span class="text-secondary">"last_login"</span>: <span class="text-green-700">"2023-11-20T14:48:00Z"</span>
-    <span class="text-blue-600">}</span>,
-    <span class="text-blue-600">{</span>
-      <span class="text-secondary">"id"</span>: <span class="text-amber-700">10284</span>,
-      <span class="text-secondary">"username"</span>: <span class="text-green-700">"a.lee"</span>,
-      <span class="text-secondary">"email"</span>: <span class="text-green-700">"anna.lee@opsconsole.internal"</span>,
-      <span class="text-secondary">"roles"</span>: <span class="text-blue-600">[</span><span class="text-green-700">"developer"</span><span class="text-blue-600">]</span>,
-      <span class="text-secondary">"active"</span>: <span class="text-blue-700">true</span>
-    <span class="text-blue-600">}</span>
-  <span class="text-blue-600">]</span>,
-  <span class="text-secondary">"meta"</span>: <span class="text-blue-600">{</span>
-    <span class="text-secondary">"total_count"</span>: <span class="text-amber-700">2</span>,
-    <span class="text-secondary">"page"</span>: <span class="text-amber-700">1</span>
-  <span class="text-blue-600">}</span>
-<span class="text-blue-600">}</span></pre>
+<div id="atAuthBearerWrap" class="at-auth-section hidden">
+<label class="at-field-label" for="atAuthBearer">Bearer token</label>
+<input id="atAuthBearer" type="text" class="at-input at-input-mono" placeholder="eyJhbGciOi…" spellcheck="false"/>
+</div>
+<div id="atAuthBasicWrap" class="at-auth-section hidden">
+<div class="at-auth-grid">
+<div>
+<label class="at-field-label" for="atAuthBasicUser">Username</label>
+<input id="atAuthBasicUser" type="text" class="at-input"/>
+</div>
+<div>
+<label class="at-field-label" for="atAuthBasicPass">Password</label>
+<input id="atAuthBasicPass" type="password" class="at-input"/>
 </div>
 </div>
 </div>
-</section>
-<section class="w-72 border-l border-outline-variant bg-surface flex flex-col">
-<div class="p-unit-md border-b border-outline-variant flex items-center justify-between">
-<h3 class="font-title-md text-title-md text-on-surface">History</h3>
-<button class="material-symbols-outlined text-on-surface-variant text-[20px] hover:bg-surface-container p-1 rounded transition-colors">history_toggle_off</button>
-</div>
-<div class="flex-1 overflow-y-auto custom-scrollbar p-unit-sm">
-<div class="space-y-1">
-<div class="p-2 hover:bg-surface-container rounded cursor-pointer transition-colors">
-<div class="flex items-center gap-2 mb-1">
-<span class="font-label-sm text-[10px] method-get">GET</span>
-<span class="font-body-sm text-on-surface-variant flex-1 truncate">/users/list</span>
-<span class="font-label-sm text-[10px] text-on-surface-variant">2m ago</span>
-</div>
-<div class="flex items-center gap-2">
-<span class="w-1.5 h-1.5 rounded-full bg-[#28A745]"></span>
-<span class="font-label-sm text-[11px] text-on-surface-variant">200 OK</span>
 </div>
 </div>
-<div class="p-2 hover:bg-surface-container rounded cursor-pointer transition-colors bg-surface-container-low border border-outline-variant/30">
-<div class="flex items-center gap-2 mb-1">
-<span class="font-label-sm text-[10px] method-post">POST</span>
-<span class="font-body-sm text-on-surface-variant flex-1 truncate">/v1/login</span>
-<span class="font-label-sm text-[10px] text-on-surface-variant">15m ago</span>
+
+<div class="at-panel" data-builder-panel="body">
+<div class="at-panel-toolbar at-panel-toolbar-start">
+<select id="atBodyType" class="at-input at-body-type-select" aria-label="Body type">
+<option value="none">No body</option>
+<option value="json">JSON</option>
+<option value="text">Raw text</option>
+</select>
+<div class="at-toolbar-divider"></div>
+<button id="atFormatBodyBtn" type="button" class="at-link-btn"><span class="material-symbols-outlined">code</span> Format</button>
+<button id="atPasteBodyBtn" type="button" class="at-link-btn"><span class="material-symbols-outlined">content_paste</span> Paste</button>
+<button id="atClearBodyBtn" type="button" class="at-link-btn"><span class="material-symbols-outlined">close</span> Clear</button>
 </div>
-<div class="flex items-center gap-2">
-<span class="w-1.5 h-1.5 rounded-full bg-[#28A745]"></span>
-<span class="font-label-sm text-[11px] text-on-surface-variant">200 OK</span>
-</div>
-</div>
-<div class="p-2 hover:bg-surface-container rounded cursor-pointer transition-colors">
-<div class="flex items-center gap-2 mb-1">
-<span class="font-label-sm text-[10px] method-get">GET</span>
-<span class="font-body-sm text-on-surface-variant flex-1 truncate">/v1/metrics/cpu</span>
-<span class="font-label-sm text-[10px] text-on-surface-variant">1h ago</span>
-</div>
-<div class="flex items-center gap-2">
-<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
-<span class="font-label-sm text-[11px] text-on-surface-variant">500 Server Error</span>
+<div class="at-code-card">
+<textarea id="atBodyEditor" class="at-body-editor" placeholder='{"key": "value"}' spellcheck="false"></textarea>
 </div>
 </div>
-<div class="p-2 hover:bg-surface-container rounded cursor-pointer transition-colors">
-<div class="flex items-center gap-2 mb-1">
-<span class="font-label-sm text-[10px] method-put">PUT</span>
-<span class="font-body-sm text-on-surface-variant flex-1 truncate">/users/10283</span>
-<span class="font-label-sm text-[10px] text-on-surface-variant">3h ago</span>
 </div>
-<div class="flex items-center gap-2">
-<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-<span class="font-label-sm text-[11px] text-on-surface-variant">401 Unauthorized</span>
+</div>
+</div>
+
+<div id="atSplitter" class="at-splitter" role="separator" aria-orientation="horizontal" aria-label="Resize request and response"></div>
+
+<div id="atResponsePane" class="at-workspace-card at-response-pane">
+<div class="at-card-header at-response-toolbar">
+<div class="at-card-header-start">
+<span class="at-card-label">
+<span class="material-symbols-outlined at-card-icon">inbox</span>
+Response
+</span>
+<div class="at-stat-group">
+<span id="atResponseStatus" class="at-status-badge at-status-idle">—</span>
+<span class="at-stat"><span class="at-stat-key">Time</span><span id="atResponseTime" class="at-stat-val">—</span></span>
+<span class="at-stat"><span class="at-stat-key">Size</span><span id="atResponseSize" class="at-stat-val">—</span></span>
+</div>
+</div>
+<div class="at-card-header-actions">
+<button id="atDownloadResponseBtn" type="button" class="at-icon-btn" title="Download response">
+<span class="material-symbols-outlined">download</span>
+</button>
+<button id="atCopyResponseBtn" type="button" class="at-icon-btn" title="Copy response">
+<span class="material-symbols-outlined">content_copy</span>
+</button>
+</div>
+</div>
+<div class="at-card-body at-card-body-flush">
+<nav class="at-tab-bar" aria-label="Response view">
+<button type="button" class="at-tab at-tab-active" data-response-tab="pretty">Pretty</button>
+<button type="button" class="at-tab" data-response-tab="raw">Raw</button>
+<button type="button" class="at-tab" data-response-tab="headers">Headers</button>
+</nav>
+<div class="at-response-view">
+<pre id="atResponseBody" class="at-response-body custom-scrollbar"></pre>
+<div id="atResponseHeadersWrap" class="at-panel hidden">
+<div id="atResponseHeaders" class="at-kv-card custom-scrollbar"></div>
 </div>
 </div>
 </div>
 </div>
 </section>
+
+<!-- History -->
+<section id="atHistoryPanel" class="at-side-panel at-side-right">
+<div class="at-side-header">
+<h3 class="at-side-title">History</h3>
+<button id="atClearHistoryBtn" type="button" class="at-icon-btn" title="Clear history">
+<span class="material-symbols-outlined">history_toggle_off</span>
+</button>
+<button id="atToggleHistory" type="button" class="at-side-toggle" title="Collapse history">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
 </div>
+<div id="atHistoryList" class="at-side-body custom-scrollbar"></div>
+</section>
+</div>
+
+<footer th:insert="~{fragments/page-shell :: page-footer(hint='HTTP API testing workspace')}">
+    <th:block th:fragment="footerExtra">
+        <span class="oc-page-footer__shortcut"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> Send</span>
+        <span class="oc-page-footer__shortcut"><kbd>Ctrl</kbd>+<kbd>S</kbd> Save</span>
+        <span class="oc-page-footer__shortcut"><kbd>Ctrl</kbd>+<kbd>K</kbd> Focus URL</span>
+    </th:block>
+</footer>
 </main>
-<script>
-        // Micro-interaction for Send button
-        document.querySelector('button:has(span:contains("Send"))')?.addEventListener('click', function() {
-            const btn = this;
-            const originalContent = btn.innerHTML;
-            btn.innerHTML = '<span>Sending...</span><span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>';
-            btn.disabled = true;
-            
-            setTimeout(() => {
-                btn.innerHTML = originalContent;
-                btn.disabled = false;
-            }, 800);
-        });
 
-        // Tab switching logic (Atmospheric only)
-        const tabs = document.querySelectorAll('.BuilderTabs button');
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                tabs.forEach(t => {
-                    t.classList.remove('border-b-2', 'border-secondary', 'text-secondary');
-                    t.classList.add('text-on-surface-variant');
-                });
-                tab.classList.add('border-b-2', 'border-secondary', 'text-secondary');
-                tab.classList.remove('text-on-surface-variant');
-            });
-        });
-    </script>
-</body></html>
+<div id="atSaveModal" class="at-modal hidden" aria-hidden="true">
+<div class="at-modal-backdrop" data-close-modal></div>
+<div class="at-modal-card" role="dialog" aria-labelledby="atSaveModalTitle">
+<div class="at-modal-header">
+<span class="material-symbols-outlined at-modal-icon">bookmark_add</span>
+<h3 id="atSaveModalTitle">Save to collection</h3>
+</div>
+<label class="at-field-label" for="atSaveLabel">Label</label>
+<input id="atSaveLabel" type="text" class="at-input at-field" placeholder="My endpoint"/>
+<label class="at-field-label" for="atSaveCollection">Collection</label>
+<select id="atSaveCollection" class="at-input at-field"></select>
+<label class="at-check-row">
+<input id="atSaveNewCollection" type="checkbox"/>
+<span>Create new collection</span>
+</label>
+<input id="atSaveCollectionName" type="text" class="at-input at-field hidden" placeholder="Collection name"/>
+<div class="at-modal-actions">
+<button type="button" class="at-btn at-btn-secondary" data-close-modal>Cancel</button>
+<button id="atSaveConfirmBtn" type="button" class="at-btn at-btn-primary">Save</button>
+</div>
+</div>
+</div>
 
+<div id="atToast" class="at-toast" aria-live="polite"></div>
+<script th:src="@{/js/api-tester.js}"></script>
+</body>
+</html>

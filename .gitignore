@@ -12,6 +12,8 @@ data/
 .env.*
 node_modules/
 .stitch-temp/
+model_hub.txt
+operation list.txt
 users-out.html
 *.lock.db
 cookies.txt

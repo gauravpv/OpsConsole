@@ -5,7 +5,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
+import com.opsconsole.health.config.HealthProperties;
+import com.opsconsole.health.domain.HealthStatus;
+import com.opsconsole.health.service.ActuatorHealthService;
 class ActuatorHealthServiceTest {
 
     private ActuatorHealthService service;

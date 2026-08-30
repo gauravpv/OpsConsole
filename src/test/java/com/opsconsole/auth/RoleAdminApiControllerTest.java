@@ -8,14 +8,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.UUID;
-
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+import com.opsconsole.auth.domain.AppUser;
+import com.opsconsole.auth.domain.OpsUserPrincipal;
+import com.opsconsole.auth.repository.AppUserRepository;
+import com.opsconsole.auth.service.AuthDataInitializer;
+import com.opsconsole.auth.service.RoleAdminService;
 @SpringBootTest
 @AutoConfigureMockMvc
 class RoleAdminApiControllerTest {

@@ -264,6 +264,97 @@ html.dark .opsconsole-app ::-webkit-scrollbar-thumb:hover {
     border-radius: 0.75rem;
 }
 
+/* ── Collapsible app sidebar ── */
+:root {
+    --oc-sidebar-width: 240px;
+}
+
+html.sidebar-collapsed {
+    --oc-sidebar-width: 72px;
+}
+
+.opsconsole-sidebar {
+    width: var(--oc-sidebar-width) !important;
+    transition: width 0.22s ease;
+    overflow: hidden;
+}
+
+.opsconsole-app main.ml-\[240px\] {
+    margin-left: var(--oc-sidebar-width) !important;
+    transition: margin-left 0.22s ease;
+}
+
+.opsconsole-app main.pl-\[240px\] {
+    padding-left: var(--oc-sidebar-width) !important;
+    transition: padding-left 0.22s ease;
+}
+
+.opsconsole-app header.oc-page-header--fixed,
+.opsconsole-app .opsconsole-header.oc-page-header--fixed {
+    left: var(--oc-sidebar-width) !important;
+    right: 0 !important;
+    width: calc(100vw - var(--oc-sidebar-width)) !important;
+    max-width: calc(100vw - var(--oc-sidebar-width)) !important;
+    transition: left 0.22s ease, width 0.22s ease;
+}
+
+.oc-sidebar-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 0.375rem;
+    color: rgba(255, 255, 255, 0.72);
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+}
+
+.oc-sidebar-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+html.sidebar-collapsed .oc-sidebar-brand-text,
+html.sidebar-collapsed .oc-sidebar-label,
+html.sidebar-collapsed .oc-sidebar-user-card,
+html.sidebar-collapsed .oc-sidebar-signout-text {
+    display: none !important;
+}
+
+html.sidebar-collapsed .opsconsole-sidebar .oc-sidebar-header {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
+
+html.sidebar-collapsed .opsconsole-sidebar .oc-sidebar-header > .flex {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+html.sidebar-collapsed .opsconsole-sidebar nav a {
+    justify-content: center;
+    gap: 0;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+html.sidebar-collapsed .opsconsole-sidebar nav a.border-l-4 {
+    border-left-width: 0;
+}
+
+html.sidebar-collapsed .opsconsole-sidebar .oc-sidebar-footer {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+html.sidebar-collapsed .opsconsole-sidebar .oc-sidebar-footer form button {
+    justify-content: center;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
 html.light .glass-panel {
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(8px);
@@ -302,4 +393,56 @@ html.light .oc-badge-success {
 html.light .oc-status-dot-active {
     background-color: #0059bb;
     box-shadow: none;
+}
+
+/* ── Unified page header & footer ── */
+.oc-page-header--fixed {
+    position: fixed;
+    top: 0;
+    left: var(--oc-sidebar-width, 240px);
+    right: 0;
+    width: calc(100vw - var(--oc-sidebar-width, 240px));
+    max-width: calc(100vw - var(--oc-sidebar-width, 240px));
+    box-sizing: border-box;
+    z-index: 40;
+}
+
+.oc-page-header__start {
+    min-width: 0;
+    flex: 0 1 auto;
+}
+
+.oc-page-header__actions {
+    flex: 0 0 auto;
+    margin-left: auto;
+}
+
+.oc-page-header__search {
+    min-width: 0;
+    flex: 0 1 28rem;
+    max-width: 28rem;
+}
+
+.oc-page-main--fixed {
+    padding-top: 4rem;
+}
+
+.oc-page-footer kbd {
+    display: inline-block;
+    padding: 0.0625rem 0.3125rem;
+    border-radius: 0.25rem;
+    border: 1px solid var(--oc-border);
+    background: var(--oc-panel-muted);
+    font-family: inherit;
+    font-size: 0.625rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--oc-text);
+}
+
+.oc-page-footer__shortcut {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.6875rem;
 }

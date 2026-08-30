@@ -7,7 +7,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
+import com.opsconsole.auth.domain.AppUser;
+import com.opsconsole.auth.repository.AppUserRepository;
+import com.opsconsole.auth.service.AuthDataInitializer;
+import com.opsconsole.auth.service.RoleAdminService;
 @SpringBootTest
 @Transactional
 class RoleAdminServiceTest {
@@ -20,6 +23,7 @@ class RoleAdminServiceTest {
 
     @Test
     void createUser_persistsWithPassword() {
+        AppUser admin = userRepository.findByAzureAdId("dev-admin").orElseThrow();
         AppUser created = roleAdminService.createUser(new RoleAdminService.CreateUserRequest(
                 "New Tester",
                 "new-tester@opsconsole.local",
@@ -28,7 +32,7 @@ class RoleAdminServiceTest {
                 "TestPass@1",
                 "QA",
                 true
-        ));
+        ), admin);
 
         assertThat(created.getId()).isNotNull();
         assertThat(created.getEmail()).isEqualTo("new-tester@opsconsole.local");
@@ -38,6 +42,7 @@ class RoleAdminServiceTest {
 
     @Test
     void createUser_rejectsDuplicateEmail() {
+        AppUser admin = userRepository.findByAzureAdId("dev-admin").orElseThrow();
         roleAdminService.createUser(new RoleAdminService.CreateUserRequest(
                 "Dup",
                 "dup@opsconsole.local",
@@ -46,7 +51,7 @@ class RoleAdminServiceTest {
                 "TestPass@1",
                 null,
                 true
-        ));
+        ), admin);
 
         assertThatThrownBy(() -> roleAdminService.createUser(new RoleAdminService.CreateUserRequest(
                 "Dup 2",
@@ -56,12 +61,13 @@ class RoleAdminServiceTest {
                 "TestPass@2",
                 null,
                 true
-        ))).isInstanceOf(IllegalArgumentException.class)
+        ), admin)).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Email");
     }
 
     @Test
     void deleteUser_removesAccount() {
+        AppUser admin = userRepository.findByAzureAdId("dev-admin").orElseThrow();
         AppUser created = roleAdminService.createUser(new RoleAdminService.CreateUserRequest(
                 "To Delete",
                 "delete-me@opsconsole.local",
@@ -70,10 +76,9 @@ class RoleAdminServiceTest {
                 "TestPass@1",
                 null,
                 true
-        ));
-        AppUser admin = userRepository.findByAzureAdId("dev-admin").orElseThrow();
+        ), admin);
 
-        roleAdminService.deleteUser(created.getId(), admin.getId());
+        roleAdminService.deleteUser(created.getId(), admin);
 
         assertThat(userRepository.findById(created.getId())).isEmpty();
     }
@@ -82,7 +87,7 @@ class RoleAdminServiceTest {
     void deleteUser_cannotDeleteSelf() {
         AppUser admin = userRepository.findByAzureAdId("dev-admin").orElseThrow();
 
-        assertThatThrownBy(() -> roleAdminService.deleteUser(admin.getId(), admin.getId()))
+        assertThatThrownBy(() -> roleAdminService.deleteUser(admin.getId(), admin))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("own account");
     }

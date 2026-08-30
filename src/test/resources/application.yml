@@ -10,6 +10,9 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
 
 opsconsole:
+  health:
+    model-hub:
+      enabled: false
   admin:
     mode: dev
     servers:

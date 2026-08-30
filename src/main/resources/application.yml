@@ -29,6 +29,8 @@ management:
         include: health,info
 
 opsconsole:
+  features:
+    api-tester-enabled: false
   auth:
     # dev = email/password; azure = Microsoft Entra ID (Azure AD)
     mode: dev
@@ -42,22 +44,51 @@ opsconsole:
     connect-timeout-ms: 3000
     read-timeout-ms: 5000
     default-actuator-path: /actuator/health
-  monitors:
-    - name: Local OpsConsole
-      host: localhost
-      port: 8080
-      environment: Development
-      region: Local
-    - name: Sample UAT Service
-      host: 127.0.0.1
-      port: 8081
-      environment: UAT
-      region: US-East-1
-    - name: Sample Production Service
-      host: 127.0.0.1
-      port: 8082
-      environment: Production
-      region: EU-Central-1
+    model-hub:
+      enabled: true
+      mock-mode: true
+      uat:
+        base-url: https://emicardbre.bajajfinserv.in
+      prod:
+        base-url: https://emicardbre-prod.bajajfinserv.in
+  bajaj-tester:
+    mock-mode: true
+    uat:
+      base-url: https://sauat.bajajfinserv.in/apis
+      operation-list-path: operationallist
+      encryption-key: "2026Unpf7T7Mr4kNAHecXKolYoD9tiOT"
+      encryption-iv: "2026JHNjiJSboivg"
+      headers:
+        Authorization: ${BAJAJ_UAT_AUTHORIZATION:WWNRYkYyRUlmNUZ4bldUOjI3YzgyQUtSa0pRYTQ4bVdSOHFCaDQzWTJTZQ==}
+        connection-from: Upgrade-ws
+        source: hqoYIrMWpVbGXPh2pqBKJxfTo110as
+        token: ${BAJAJ_UAT_TOKEN:}
+        additionalinfo5: cbc
+        additionalinfo1: ${BAJAJ_UAT_ADDITIONALINFO1:}
+        subscriptionid: ${BAJAJ_UAT_SUBSCRIPTION_ID:}
+      request-body:
+        channel: hqoYIrMWpVbGXPh2pqBKJxfTo110as
+        appversion: hqoYIrMWpVbGXPh2pqBKJxfTo110as_web_1.0.0.158
+        deviceId: hqoYIrMWpVbGXPh2pqBKJxfTo110as
+    prod:
+      base-url: https://superapp.bajajfinserv.in/apis
+      operation-list-path: operationallist
+      encryption-key: ${BAJAJ_PROD_ENCRYPTION_KEY:2026Unpf7T7Mr4kNAHecXKolYoD9tiOT}
+      encryption-iv: ${BAJAJ_PROD_ENCRYPTION_IV:2026JHNjiJSboivg}
+      headers:
+        Authorization: ${BAJAJ_PROD_AUTHORIZATION:}
+        connection-from: Upgrade-ws
+        source: ${BAJAJ_PROD_SOURCE:}
+        token: ${BAJAJ_PROD_TOKEN:}
+        additionalinfo5: cbc
+        additionalinfo1: ${BAJAJ_PROD_ADDITIONALINFO1:}
+        subscriptionid: ${BAJAJ_PROD_SUBSCRIPTION_ID:}
+      request-body:
+        channel: ${BAJAJ_PROD_CHANNEL:}
+        appversion: ${BAJAJ_PROD_APPVERSION:}
+        deviceId: ${BAJAJ_PROD_DEVICE_ID:}
+  # Monitored systems (IP, port, environment) are stored in the database (monitored_hosts).
+  # Add or edit systems from the System Health page; they persist across restarts.
   admin:
     # dev = simulate SSH; live = real SSH (requires OPS_SSH_KEY_PATH)
     mode: dev

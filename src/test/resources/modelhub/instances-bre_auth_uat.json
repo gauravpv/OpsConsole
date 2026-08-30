@@ -1,0 +1,42 @@
+{
+  "content": [
+    {
+      "data": {
+        "id": "718ba854-3d58-4c17-97bc-0f7d4afddbe9",
+        "name": "ACTICO Execution Server [bre_auth_uat 9010]",
+        "url": "http://10.48.129.199:9010",
+        "validUntil": "2099-08-26T16:35:19.848664872Z",
+        "environmentId": "bre_auth_uat",
+        "appName": "ACTICO Execution Server",
+        "appVersion": "10.2.0",
+        "metrics": {
+          "http.server.requests.status.200": {
+            "measurements": { "COUNT": 492.0 }
+          },
+          "http.server.requests.status.500": {
+            "measurements": { "COUNT": 0.0 }
+          }
+        }
+      }
+    },
+    {
+      "data": {
+        "id": "eb15418c-d65b-445f-b8a9-34467530588c",
+        "name": "ACTICO Execution Server [bre_auth_uat 9010]",
+        "url": "http://172.30.2.106:9010",
+        "validUntil": "2020-01-01T00:00:00Z",
+        "environmentId": "bre_auth_uat",
+        "appName": "ACTICO Execution Server",
+        "appVersion": "10.3.2",
+        "metrics": {
+          "http.server.requests.status.200": {
+            "measurements": { "COUNT": 3638.0 }
+          },
+          "http.server.requests.status.500": {
+            "measurements": { "COUNT": 11.0 }
+          }
+        }
+      }
+    }
+  ]
+}

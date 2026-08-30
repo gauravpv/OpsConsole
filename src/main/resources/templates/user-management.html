@@ -13,14 +13,7 @@
 <div class="flex h-screen overflow-hidden">
 <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
 <main class="flex-1 flex flex-col ml-[240px] h-screen overflow-hidden bg-background">
-<header class="h-16 bg-surface border-b border-outline-variant flex items-center justify-between px-unit-xl w-full z-30">
-<div class="flex items-center gap-unit-md flex-1">
-<h2 class="oc-page-title font-headline-sm text-headline-sm font-bold text-primary">User Administration</h2>
-</div>
-<div class="flex items-center gap-unit-md">
-<th:block th:replace="~{fragments/stitch-theme :: theme-toggle}"></th:block>
-</div>
-</header>
+<th:block th:replace="~{fragments/page-shell :: page-header(title='User Administration', searchPlaceholder='', searchId='', showSearch=false, fixed=false, showNotifications=true, showSettings=true, showUser=false)}"/>
 <div class="flex-1 overflow-y-auto p-unit-xl">
 <div class="max-w-container-max-width mx-auto space-y-unit-xl">
 
@@ -67,7 +60,7 @@ Add user
 </thead>
 <tbody id="usersTableBody" class="divide-y divide-outline-variant">
 <tr th:each="u : ${users}" class="user-row hover:bg-surface-container-low/50 transition-colors duration-150 group hidden"
-    th:attr="data-search=${#strings.toLowerCase(u.displayName + ' ' + u.email + ' ' + u.role.name + ' ' + u.role.code + ' ' + (u.enabled ? 'active' : 'suspended') + ' ' + (u.jobTitle != null ? u.jobTitle : ''))}">
+    th:attr="data-search=${#strings.toLowerCase(u.displayName + ' ' + u.email + ' ' + u.role.name + ' ' + u.role.code + ' ' + (u.enabled ? 'active' : 'inactive') + ' ' + (u.jobTitle != null ? u.jobTitle : ''))}">
 <td class="px-4 py-3 align-middle">
 <div class="flex items-center gap-3 min-w-0">
 <div class="w-9 h-9 rounded-full bg-secondary-container/20 border border-outline-variant flex items-center justify-center shrink-0">
@@ -86,7 +79,7 @@ Add user
 <td class="px-4 py-3 align-middle">
 <div class="flex items-center gap-2 whitespace-nowrap">
 <span th:class="${u.enabled} ? 'w-2 h-2 rounded-full oc-status-dot-active shrink-0' : 'w-2 h-2 rounded-full bg-error shrink-0'"></span>
-<span class="font-body-sm text-body-sm text-on-surface" th:text="${u.enabled ? 'Active' : 'Suspended'}">Active</span>
+<span class="font-body-sm text-body-sm text-on-surface" th:text="${u.enabled ? 'Active' : 'Inactive'}">Active</span>
 </div>
 </td>
 <td class="px-4 py-3 align-middle">
@@ -179,6 +172,7 @@ Save tab access
 
 </div>
 </div>
+<th:block th:replace="~{fragments/page-shell :: page-footer(hint='User and role administration')}"/>
 </main>
 </div>
 
@@ -244,6 +238,32 @@ Save tab access
 </div>
 <div class="flex-1 overflow-y-auto p-unit-lg space-y-unit-xl">
 <section class="space-y-unit-md">
+<label class="block font-label-md text-on-surface-variant uppercase tracking-wider" for="drawerDisplayName">Display name</label>
+<input type="text" id="drawerDisplayName" maxlength="200" class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2 text-body-md text-on-surface focus:outline-none focus:border-secondary-container"/>
+</section>
+<section class="space-y-unit-md">
+<label class="block font-label-md text-on-surface-variant uppercase tracking-wider" for="drawerJobTitle">Job title</label>
+<input type="text" id="drawerJobTitle" maxlength="200" class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2 text-body-md text-on-surface focus:outline-none focus:border-secondary-container"/>
+</section>
+<section class="space-y-unit-sm rounded-lg border border-outline-variant bg-surface-container-low p-unit-md">
+<div class="flex justify-between gap-4 text-body-sm">
+<span class="text-on-surface-variant">Email</span>
+<span class="text-on-surface text-right break-all" id="drawerEmail">—</span>
+</div>
+<div class="flex justify-between gap-4 text-body-sm">
+<span class="text-on-surface-variant">Created</span>
+<span class="text-on-surface text-right tabular-nums" id="drawerCreatedAt">—</span>
+</div>
+<div class="flex justify-between gap-4 text-body-sm">
+<span class="text-on-surface-variant">Last login</span>
+<span class="text-on-surface text-right tabular-nums" id="drawerLastLogin">—</span>
+</div>
+<div class="flex justify-between gap-4 text-body-sm">
+<span class="text-on-surface-variant">Sign-in</span>
+<span class="text-on-surface text-right" id="drawerSignInType">—</span>
+</div>
+</section>
+<section class="space-y-unit-md">
 <label class="block font-label-md text-on-surface-variant uppercase tracking-wider">Account Status</label>
 <div class="flex items-center gap-unit-lg p-unit-md rounded-lg border border-outline-variant bg-surface-container-low">
 <label class="flex items-center gap-2 cursor-pointer">
@@ -251,8 +271,8 @@ Save tab access
 <span class="text-body-md">Active</span>
 </label>
 <label class="flex items-center gap-2 cursor-pointer">
-<input type="radio" name="userStatus" id="statusSuspended" value="false"/>
-<span class="text-body-md">Suspended</span>
+<input type="radio" name="userStatus" id="statusInactive" value="false"/>
+<span class="text-body-md">Inactive</span>
 </label>
 </div>
 </section>
@@ -261,6 +281,15 @@ Save tab access
 <select id="userRoleSelect" class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2 text-body-md text-on-surface focus:outline-none focus:border-secondary-container">
 <option th:each="role : ${roles}" th:value="${role.code}" th:text="${role.name}">Role</option>
 </select>
+</section>
+<section class="space-y-unit-md">
+<div class="flex items-center justify-between gap-2">
+<label class="block font-label-md text-on-surface-variant uppercase tracking-wider">Activity log</label>
+<span class="text-body-sm text-on-surface-variant">From database</span>
+</div>
+<div id="drawerActivityLog" class="rounded-lg border border-outline-variant bg-surface-container-low divide-y divide-outline-variant/50 max-h-64 overflow-y-auto">
+<p class="p-unit-md text-body-sm text-on-surface-variant">Loading activity…</p>
+</div>
 </section>
 </div>
 <div class="p-unit-lg border-t border-outline-variant flex gap-unit-md">
@@ -450,16 +479,85 @@ Save tab access
         }
     }
 
-    function openUserDrawer(btn) {
+    function formatDateTime(value) {
+        if (!value) return 'Never';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return '—';
+        return date.toLocaleString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function renderActivityLog(entries) {
+        const container = document.getElementById('drawerActivityLog');
+        if (!container) return;
+        if (!entries || entries.length === 0) {
+            container.innerHTML = '<p class="p-unit-md text-body-sm text-on-surface-variant">No activity recorded yet.</p>';
+            return;
+        }
+        container.innerHTML = entries.map(entry => `
+            <div class="p-unit-md">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0">
+                        <p class="text-body-sm font-medium text-on-surface">${escapeHtml(entry.actionLabel)}</p>
+                        <p class="text-body-sm text-on-surface-variant mt-0.5">${escapeHtml(entry.detail || '')}</p>
+                        <p class="text-[11px] text-on-surface-variant/70 mt-1">By ${escapeHtml(entry.actorDisplayName || 'System')}</p>
+                    </div>
+                    <time class="text-[11px] text-on-surface-variant whitespace-nowrap tabular-nums">${formatDateTime(entry.occurredAt)}</time>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;');
+    }
+
+    async function openUserDrawer(btn) {
         selectedUserId = btn.dataset.userId;
-        document.getElementById('drawerUserSubtitle').textContent = btn.dataset.userName;
-        document.getElementById('userRoleSelect').value = btn.dataset.userRole;
-        const enabled = btn.dataset.userEnabled === 'true';
-        document.getElementById('statusActive').checked = enabled;
-        document.getElementById('statusSuspended').checked = !enabled;
+        document.getElementById('drawerUserSubtitle').textContent = btn.dataset.userName || 'User';
+        document.getElementById('drawerActivityLog').innerHTML = '<p class="p-unit-md text-body-sm text-on-surface-variant">Loading activity…</p>';
         document.getElementById('userDrawer').classList.add('open');
         document.getElementById('drawerOverlay').classList.add('open');
         document.body.style.overflow = 'hidden';
+
+        try {
+            const [userRes, activityRes] = await Promise.all([
+                fetch(`/api/admin/users/${selectedUserId}`, { credentials: 'same-origin' }),
+                fetch(`/api/admin/users/${selectedUserId}/activity`, { credentials: 'same-origin' })
+            ]);
+            if (!userRes.ok) {
+                throw new Error(await adminApiErrorMessage(userRes, 'Failed to load user'));
+            }
+            const user = await userRes.json();
+            document.getElementById('drawerUserSubtitle').textContent = user.email;
+            document.getElementById('drawerDisplayName').value = user.displayName || '';
+            document.getElementById('drawerJobTitle').value = user.jobTitle || '';
+            document.getElementById('drawerEmail').textContent = user.email || '—';
+            document.getElementById('drawerCreatedAt').textContent = formatDateTime(user.createdAt);
+            document.getElementById('drawerLastLogin').textContent = formatDateTime(user.lastLoginAt);
+            document.getElementById('drawerSignInType').textContent = user.hasLocalPassword ? 'Local password' : 'Microsoft Entra ID';
+            document.getElementById('userRoleSelect').value = user.roleCode;
+            document.getElementById('statusActive').checked = user.enabled;
+            document.getElementById('statusInactive').checked = !user.enabled;
+
+            if (activityRes.ok) {
+                renderActivityLog(await activityRes.json());
+            } else {
+                renderActivityLog([]);
+            }
+        } catch (e) {
+            alert(e.message || 'Failed to load user details.');
+            closeUserDrawer();
+        }
     }
 
     function closeUserDrawer() {
@@ -473,7 +571,17 @@ Save tab access
         if (!selectedUserId) return;
         const roleCode = document.getElementById('userRoleSelect').value;
         const enabled = document.getElementById('statusActive').checked;
+        const displayName = document.getElementById('drawerDisplayName').value.trim();
+        const jobTitle = document.getElementById('drawerJobTitle').value.trim();
         try {
+            const profileRes = await fetch(`/api/admin/users/${selectedUserId}`, {
+                method: 'PUT',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ displayName, jobTitle: jobTitle || null })
+            });
+            if (!profileRes.ok) throw new Error(await adminApiErrorMessage(profileRes, 'Failed to save profile'));
+
             const roleRes = await fetch(`/api/admin/users/${selectedUserId}/role`, {
                 method: 'PUT',
                 credentials: 'same-origin',
@@ -481,6 +589,7 @@ Save tab access
                 body: JSON.stringify({ roleCode })
             });
             if (!roleRes.ok) throw new Error(await adminApiErrorMessage(roleRes, 'Failed to save role'));
+
             const statusRes = await fetch(`/api/admin/users/${selectedUserId}/status`, {
                 method: 'PUT',
                 credentials: 'same-origin',

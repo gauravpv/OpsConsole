@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
+<head>
+<th:block th:replace="~{fragments/head :: head(pageTitle='Tester')}"/>
+<link rel="stylesheet" th:href="@{/css/tester.css}"/>
+</head>
+<body class="opsconsole-app bg-background text-on-background font-body-md overflow-hidden h-screen flex">
+<aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+<main class="flex-1 ml-[240px] flex flex-col h-screen bt-main">
+<th:block th:insert="~{fragments/page-shell :: page-header(title='Bajaj API Tester', searchPlaceholder='', searchId='', showSearch=false, fixed=false, showNotifications=true, showSettings=true, showUser=false)}">
+    <th:block th:fragment="headerLeading">
+        <span id="btApiCount" class="bt-count-badge">0 APIs</span>
+        <span id="btModeBadge" class="bt-mode-badge">Loading…</span>
+    </th:block>
+</th:block>
+
+<section class="bt-workspace">
+<div class="bt-composer-card">
+<div class="bt-url-bar">
+<div id="btEnvWrap" class="bt-env-wrap bt-env-uat">
+<select id="btEnvironment" class="bt-env-select" aria-label="Environment">
+<option value="UAT" selected>UAT</option>
+<option value="PROD">Prod</option>
+</select>
+<span class="material-symbols-outlined bt-select-chevron">expand_more</span>
+</div>
+<div class="bt-method-wrap">
+<span class="bt-method-label">POST</span>
+</div>
+<div class="bt-api-field">
+<div class="bt-api-combobox" id="btApiCombobox">
+<button type="button" class="bt-api-trigger" id="btApiTrigger" disabled aria-haspopup="listbox" aria-expanded="false">
+<span class="bt-api-trigger-text" id="btApiTriggerText">Select an API endpoint…</span>
+<span class="material-symbols-outlined bt-select-chevron">expand_more</span>
+</button>
+<div class="bt-api-dropdown hidden" id="btApiDropdown" role="listbox">
+<div class="bt-api-search-wrap">
+<span class="material-symbols-outlined bt-api-search-icon">search</span>
+<input type="search" id="btApiSearch" class="bt-api-search" placeholder="Filter APIs…" autocomplete="off" aria-label="Filter API list"/>
+</div>
+<ul class="bt-api-list custom-scrollbar" id="btApiList"></ul>
+</div>
+</div>
+</div>
+<button id="btReloadBtn" type="button" class="bt-btn bt-btn-secondary bt-reload-btn" title="Reload operation list">
+<span class="material-symbols-outlined">refresh</span>
+</button>
+<button id="btSendBtn" type="button" class="bt-btn bt-btn-primary bt-send-btn" disabled title="Send encrypted request">
+<span class="bt-send-label">Send</span>
+<span class="material-symbols-outlined bt-send-icon">send</span>
+</button>
+</div>
+<div class="bt-composer-meta">
+<div class="bt-meta-grid">
+<span class="material-symbols-outlined bt-endpoint-icon" aria-hidden="true">link</span>
+<code id="btEndpoint" class="bt-endpoint">Select an API to see the full endpoint URL</code>
+<p id="btStatus" class="bt-status-line">Choose UAT or Prod to load the operation list.</p>
+</div>
+</div>
+</div>
+
+<div class="bt-panes">
+<article class="bt-pane-card bt-request-pane">
+<header class="bt-card-header">
+<span class="bt-card-label">
+<span class="material-symbols-outlined bt-card-icon">edit_note</span>
+Request body
+</span>
+<div class="bt-card-actions">
+<button id="btFormatBtn" type="button" class="bt-icon-btn" title="Format JSON" disabled>
+<span class="material-symbols-outlined">data_object</span>
+</button>
+<button id="btClearReqBtn" type="button" class="bt-icon-btn" title="Clear request" disabled>
+<span class="material-symbols-outlined">backspace</span>
+</button>
+</div>
+</header>
+<div class="bt-code-card">
+<textarea id="btRequestBody" class="bt-body-editor custom-scrollbar" spellcheck="false" placeholder='Paste plain JSON here — encrypted with the selected API key &amp; IV on send&#10;&#10;{&#10;  "example": "value"&#10;}' disabled></textarea>
+</div>
+<div class="bt-pane-footer">
+<span class="material-symbols-outlined">enhanced_encryption</span>
+<span>AES-256-CBC · key = hashcode · IV = salt</span>
+</div>
+</article>
+
+<article class="bt-pane-card bt-response-pane">
+<header class="bt-card-header">
+<span class="bt-card-label">
+<span class="material-symbols-outlined bt-card-icon">shield</span>
+Decrypted response
+</span>
+<div class="bt-response-toolbar">
+<div id="btResponseMeta" class="bt-stat-group">
+<span id="btStatusCode" class="bt-stat bt-stat-status bt-stat-idle">—</span>
+<span id="btDuration" class="bt-stat"><span class="bt-stat-key">Time</span><span id="btDurationVal" class="bt-stat-val">—</span></span>
+<span id="btResponseSize" class="bt-stat"><span class="bt-stat-key">Size</span><span id="btResponseSizeVal" class="bt-stat-val">—</span></span>
+</div>
+<button id="btCopyBtn" type="button" class="bt-icon-btn" title="Copy response" disabled>
+<span class="material-symbols-outlined">content_copy</span>
+</button>
+</div>
+</header>
+<div class="bt-response-view">
+<pre id="btResponseBody" class="bt-response-body custom-scrollbar"><span class="bt-empty-state">Send a request to see the decrypted, beautified JSON response here.</span></pre>
+</div>
+</article>
+</div>
+</section>
+
+<footer th:insert="~{fragments/page-shell :: page-footer(hint='Encrypted Bajaj API testing')}">
+    <th:block th:fragment="footerExtra">
+        <span class="oc-page-footer__shortcut"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> Send</span>
+    </th:block>
+</footer>
+</main>
+<div id="btToast" class="bt-toast" role="status" aria-live="polite"></div>
+<script th:src="@{/js/tester.js}"></script>
+</body>
+</html>

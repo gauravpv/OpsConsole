@@ -1,0 +1,18 @@
+{
+  "content": [
+    {
+      "data": {
+        "environmentId": "bre_auth_uat",
+        "label": "BRE AUTH UAT",
+        "tags": [{ "id": 4, "name": "BRE AUTH" }]
+      }
+    },
+    {
+      "data": {
+        "environmentId": "brepod_uat",
+        "label": "brepod_uat",
+        "tags": [{ "id": 1, "name": "BRE POD" }]
+      }
+    }
+  ]
+}

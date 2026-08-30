@@ -5,139 +5,276 @@
 <style>
     #register-modal.open { pointer-events: auto; opacity: 1; }
     #register-modal.open #register-modal-panel { transform: translateY(0); }
-    #register-modal .register-modal-header {
-        padding: 12px 24px;
-    }
+    #register-modal .register-modal-header { padding: 14px 24px; }
     #register-form {
         margin: 0;
-        padding: 8px 24px 20px;
+        padding: 12px 24px 24px;
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 14px;
     }
-    #register-form > *:first-child {
-        margin-top: 0;
-    }
-    #health-grid {
-        align-items: stretch;
-    }
-    .health-card,
-    #register-service-card {
+    #health-sections { display: flex; flex-direction: column; gap: 2rem; }
+    .health-grid { align-items: stretch; }
+    .health-card {
         height: 100%;
         display: flex;
         flex-direction: column;
     }
     .health-card-header {
         flex-shrink: 0;
-        min-height: 56px;
+        padding: 0.5rem 0.875rem;
         box-sizing: border-box;
     }
     .health-card-body {
         flex: 1 1 auto;
+        padding: 0.75rem 1rem 0.875rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+        min-height: 8.25rem;
     }
-    .health-card-last-check {
-        white-space: nowrap;
-        font-size: 0.6875rem;
-        line-height: 1.2;
+    .health-card-row-value--empty {
+        color: var(--oc-text-muted, #45474d);
+        opacity: 0.35;
+    }
+    .health-card-title {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        line-height: 1.35;
         letter-spacing: -0.01em;
     }
-    @media (min-width: 1280px) {
-        .health-card-last-check {
-            font-size: 0.75rem;
-        }
+    .health-card-subtitle {
+        font-size: 0.6875rem;
+        font-weight: 500;
+        line-height: 1.3;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        margin-top: 0.25rem;
+    }
+    .health-card-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        min-height: 1.5rem;
+        padding: 0.1875rem 0;
+    }
+    .health-card-row-label {
+        font-size: 0.75rem;
+        line-height: 1.35;
+        font-weight: 400;
+        color: var(--oc-text-muted, #45474d);
+        flex-shrink: 0;
+    }
+    .health-card-row-value {
+        font-size: 0.75rem;
+        line-height: 1.35;
+        font-weight: 500;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+        min-width: 0;
+    }
+    .health-card-last-check {
+        flex: 1 1 auto;
+        white-space: nowrap;
+        font-size: 0.6875rem;
+        line-height: 1.35;
+        font-weight: 500;
+        letter-spacing: 0;
+        font-variant-numeric: tabular-nums;
     }
     .health-status-badge {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 4px;
-        width: 56px;
-        min-width: 56px;
-        padding: 4px 0;
+        min-width: 3.5rem;
+        padding: 0.25rem 0.5rem;
         border-radius: 9999px;
         font-family: 'JetBrains Mono', monospace;
-        font-size: 11px;
-        font-weight: 500;
-        line-height: 14px;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        line-height: 1;
         flex-shrink: 0;
     }
     #register-service-card {
         width: 100%;
+        min-height: 11rem;
         justify-content: center;
         align-items: center;
-        gap: 4px;
-        padding: 12px 16px;
+        gap: 0.375rem;
+        padding: 1rem;
         box-sizing: border-box;
+    }
+    .health-filter-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+        flex-wrap: wrap;
+    }
+    .health-filter-bar__pills {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    .health-filter-all,
+    .health-filter-select {
+        box-sizing: border-box;
+        height: 2.125rem;
+        min-width: 9.75rem;
+        width: 9.75rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        line-height: 1.2;
+    }
+    .health-filter-all {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 1rem;
+        border-radius: 9999px;
+        border: 1px solid transparent;
+        white-space: nowrap;
+        cursor: pointer;
     }
     .health-filter-select {
         appearance: none;
-        padding: 6px 36px 6px 16px;
+        padding: 0 2.25rem 0 1rem;
         border-radius: 9999px;
         border: 1px solid transparent;
         background-color: #e6eff8;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='%2345474d'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
         background-position: right 8px center;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 13px;
-        font-weight: 500;
-        line-height: 16px;
         color: #45474d;
         cursor: pointer;
-        transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-    }
-    .health-filter-select:hover {
-        background-color: #dbe4ed;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .health-filter-select.filter-active {
         background-color: #051125;
-        color: #ffffff;
-        border-color: #051125;
+        color: #fff;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='%23ffffff'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
     }
-    html.dark .health-filter-select {
-        background-color: #1b263b;
+    html.dark .health-filter-select { background-color: #1b263b; color: #dbe4ed; }
+    html.dark .health-filter-select.filter-active { background-color: #0070ea; }
+    .health-refresh-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.375rem;
+        height: 2.125rem;
+        padding: 0 1rem;
+        margin-left: auto;
+        border-radius: 9999px;
+        border: 1px solid var(--oc-outline-variant, #dbe4ed);
+        background: var(--oc-surface-container-low, #f5f8fc);
+        color: var(--oc-text-muted, #45474d);
+        font-size: 0.8125rem;
+        font-weight: 500;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: color 0.2s, border-color 0.2s, background-color 0.2s;
+        flex-shrink: 0;
+    }
+    .health-refresh-btn:hover:not(:disabled) {
+        color: #0070ea;
+        border-color: rgba(0, 112, 234, 0.35);
+        background: rgba(0, 112, 234, 0.06);
+    }
+    .health-refresh-btn:disabled {
+        opacity: 0.65;
+        cursor: wait;
+    }
+    html.dark .health-refresh-btn {
+        background: #1b263b;
+        border-color: rgba(173, 199, 255, 0.15);
         color: #dbe4ed;
     }
-    html.dark .health-filter-select:hover {
-        background-color: #293138;
+    .health-metric-ok { color: #1e7e34; font-weight: 600; }
+    .health-metric-err { color: #ba1a1a; font-weight: 600; }
+    html.dark .health-metric-ok { color: #4ade80; }
+    html.dark .health-metric-err { color: #ff8a80; }
+    .health-source-banner {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1.25rem;
+        border-radius: 0.625rem;
+        background: rgba(0, 89, 187, 0.08);
+        border: 1px solid rgba(0, 89, 187, 0.15);
+        font-size: 0.8125rem;
+        line-height: 1.45;
+        color: var(--oc-text-muted, #45474d);
     }
-    html.dark .health-filter-select.filter-active {
-        background-color: #0070ea;
-        color: #ffffff;
-        border-color: #0070ea;
+    html.dark .health-source-banner {
+        background: rgba(173, 199, 255, 0.1);
+        border-color: rgba(173, 199, 255, 0.18);
     }
+    .health-region-heading {
+        display: flex;
+        align-items: baseline;
+        gap: 0.375rem;
+        margin-bottom: 0.875rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--oc-outline-variant, #dbe4ed);
+    }
+    .health-region-heading h3 {
+        font-size: 0.8125rem;
+        font-weight: 700;
+        line-height: 1.3;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+    .health-region-heading span {
+        font-size: 0.75rem;
+        font-weight: 500;
+        line-height: 1.3;
+    }
+    html.dark .health-region-heading { border-bottom-color: rgba(173, 199, 255, 0.15); }
+    .health-card-edit,
+    .health-card-remove {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.75rem;
+        height: 1.75rem;
+        border-radius: 9999px;
+        color: var(--oc-text-muted, #45474d);
+        opacity: 0;
+        transition: opacity 0.2s, background-color 0.2s, color 0.2s;
+    }
+    .health-card:hover .health-card-edit,
+    .health-card:hover .health-card-remove,
+    .health-card-edit:focus-visible,
+    .health-card-remove:focus-visible { opacity: 1; }
+    .health-card-edit:hover { background: rgba(0, 112, 234, 0.1); color: #0070ea; }
+    .health-card-remove:hover { background: rgba(186, 26, 26, 0.1); color: #ba1a1a; }
 </style>
 </head>
 <body class="opsconsole-app bg-background text-on-background font-body-md overflow-x-hidden">
 <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+<th:block th:replace="~{fragments/page-shell :: page-header(title='System Health', searchPlaceholder='Search services...', searchId='health-search', showSearch=true, fixed=true, showNotifications=true, showSettings=true, showUser=false)}"/>
 
-<main class="ml-[240px] min-h-screen">
-<header class="h-16 fixed top-0 right-0 left-[240px] bg-surface border-b border-outline-variant flex items-center justify-between px-unit-xl z-40">
-<div class="flex items-center gap-unit-lg">
-<h2 class="oc-page-title font-headline-sm text-headline-sm font-bold text-primary">System Health</h2>
-<div class="relative w-64">
-<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
-<input id="health-search" type="search" autocomplete="off" placeholder="Search services..."
-       class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-1.5 pl-10 pr-4 font-body-sm text-body-sm text-on-surface focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20 transition-all"/>
+<main class="ml-[240px] min-h-screen flex flex-col">
+<div class="oc-page-main--fixed flex-1 px-unit-xl pb-unit-xl">
+<div th:if="${modelHubEnabled}" class="health-source-banner">
+<span class="material-symbols-outlined text-secondary text-[18px]" th:text="${modelHubMockMode ? 'science' : 'cloud_sync'}">cloud_sync</span>
+<span th:if="${modelHubMockMode}">Systems are stored in the database. Mock Model Hub data is matched against configured IP and port. Refreshes every <span th:text="${refreshSeconds}">30</span>s.</span>
+<span th:unless="${modelHubMockMode}">Systems are stored in the database and matched against live Model Hub instance URLs. Refreshes every <span th:text="${refreshSeconds}">30</span>s.</span>
 </div>
+<div th:if="${!modelHubEnabled}" class="health-source-banner">
+<span class="material-symbols-outlined text-secondary text-[18px]">database</span>
+<span>Monitored IP and port are stored in the database. Add or edit systems below; changes persist across restarts. Refreshes every <span th:text="${refreshSeconds}">30</span>s.</span>
 </div>
-<div class="flex items-center gap-unit-md">
-<th:block th:replace="~{fragments/stitch-theme :: theme-toggle}"></th:block>
-<div class="h-8 w-[1px] bg-outline-variant mx-unit-sm"></div>
-<button type="button" id="refresh-now" class="flex items-center gap-unit-xs text-on-surface-variant hover:text-secondary transition-colors" title="Refresh from database">
-<span class="material-symbols-outlined text-[18px]" id="refresh-icon">sync</span>
-<span class="font-label-md text-label-md" id="refresh-countdown" th:text="'Auto-refresh ' + ${refreshSeconds} + 's'">Auto-refresh 30s</span>
-</button>
-<div class="h-8 w-[1px] bg-outline-variant mx-unit-sm"></div>
-<button type="button" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-all">notifications</button>
-<button type="button" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-all">settings</button>
-</div>
-</header>
-
-<div class="pt-24 px-unit-xl pb-unit-xl">
-<div class="flex flex-wrap items-center gap-unit-sm mb-unit-lg">
-<button type="button" id="health-filter-all" class="health-filter-all px-unit-md py-1.5 bg-primary text-on-primary rounded-full font-label-md text-label-md transition-all shadow-sm">
+<div class="health-filter-bar">
+<div class="health-filter-bar__pills">
+<button type="button" id="health-filter-all" class="health-filter-all bg-primary text-on-primary shadow-sm transition-all">
     All <span class="opacity-80" th:text="|(${summary.total})|">(0)</span>
 </button>
 <select id="health-status-filter" class="health-filter-select" aria-label="Filter by status">
@@ -145,76 +282,129 @@
     <option value="UP" th:text="|Up (${summary.up})|">Up (0)</option>
     <option value="DOWN" th:text="|Down (${summary.down})|">Down (0)</option>
 </select>
-<select id="health-env-filter" class="health-filter-select" aria-label="Filter by environment">
-    <option value="">Environment</option>
-    <option value="PROD" th:text="|Prod (${summary.production})|">Prod (0)</option>
-    <option value="UAT" th:text="|UAT (${summary.uat})|">UAT (0)</option>
+<select id="health-env-filter" class="health-filter-select filter-active" aria-label="Filter by environment">
+    <option value="UAT" th:text="|UAT (${summary.uatTier})|" selected>UAT (0)</option>
+    <option value="PROD" th:text="|Prod (${summary.prodTier})|">Prod (0)</option>
 </select>
 </div>
-
-<div id="health-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-gutter">
-<div th:each="system : ${systems}"
-     th:data-status="${system.status.name()}"
-     th:data-environment="${system.environment}"
-     th:attr="data-search=${system.name + ' ' + system.host + ' ' + system.port + ' ' + system.environment + ' ' + system.region}"
-     class="health-card bg-surface border border-outline-variant rounded-xl shadow-sm hover:shadow-md transition-all duration-300 group overflow-hidden">
-    <div class="health-card-header px-unit-md py-unit-sm border-b border-outline-variant bg-surface-container-lowest flex items-start justify-between">
-        <div class="min-w-0 pr-2">
-            <h3 class="font-title-md text-title-md text-primary truncate" th:text="${system.name}">Service</h3>
-            <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mt-1 truncate" th:text="${system.subtitle()}">Env • Region</p>
-        </div>
-        <span class="health-status-badge"
-              th:classappend="${system.status.name() == 'UP'} ? ' bg-green-100 text-green-700' : (${system.status.name() == 'DOWN'} ? ' bg-red-100 text-red-700' : ' bg-orange-100 text-orange-700')">
-            <span th:class="${system.status.name() == 'UP'} ? 'w-2 h-2 bg-green-500 rounded-full animate-pulse' : (${system.status.name() == 'DOWN'} ? 'w-2 h-2 bg-red-500 rounded-full' : 'w-2 h-2 bg-orange-500 rounded-full animate-pulse')"></span>
-            <span th:text="${system.statusLabel}">UP</span>
-        </span>
-    </div>
-    <div class="health-card-body px-unit-md pt-unit-sm pb-unit-sm">
-        <div class="flex justify-between items-baseline mb-1 gap-1 min-w-0">
-            <span class="font-body-sm text-body-sm text-on-surface-variant shrink-0">Last check</span>
-            <time class="health-card-last-check font-label-md tabular-nums text-right shrink-0"
-                  th:classappend="${system.status.name() == 'DOWN'} ? 'text-error' : 'text-on-surface'"
-                  th:datetime="${#temporals.format(system.lastChecked, 'yyyy-MM-dd''T''HH:mm:ssXXX')}"
-                  th:text="${#temporals.format(system.lastChecked, 'd MMM yyyy HH:mm:ss')}">29 May 2026 14:30:00</time>
-        </div>
-        <div class="flex justify-between items-center mb-1">
-            <span class="font-body-sm text-body-sm text-on-surface-variant">Response time</span>
-            <span class="font-label-md text-label-md text-on-surface tabular-nums" th:text="${system.responseTimeMs} + ' ms'">0 ms</span>
-        </div>
-        <div class="flex justify-between items-center mb-1">
-            <span class="font-body-sm text-body-sm text-on-surface-variant">IP</span>
-            <span class="font-label-md text-label-md text-on-surface truncate max-w-[55%] text-right" th:text="${system.host}">localhost</span>
-        </div>
-        <div class="flex justify-between items-center">
-            <span class="font-body-sm text-body-sm text-on-surface-variant">Port</span>
-            <span class="font-label-md text-label-md text-on-surface tabular-nums" th:text="${system.port}">8080</span>
-        </div>
-    </div>
-</div>
-
-<button type="button" id="register-service-card"
-        class="border-2 border-dashed border-outline-variant rounded-xl text-on-surface-variant hover:border-secondary hover:text-secondary transition-all group bg-surface-container-lowest/50">
-    <span class="material-symbols-outlined text-[28px] leading-none group-hover:scale-105 transition-transform">add_circle</span>
-    <span class="text-sm font-medium text-on-surface group-hover:text-secondary">Register Service</span>
+<button type="button" id="refresh-now" class="health-refresh-btn" title="Refresh health data now">
+    <span class="material-symbols-outlined text-[18px]" id="refresh-icon">sync</span>
+    <span id="refresh-countdown" th:text="'Next refresh ' + ${refreshSeconds} + 's'">Next refresh 30s</span>
 </button>
 </div>
+
+<div id="health-sections">
+<section th:each="group : ${systemGroups}" class="health-region-section" th:attr="data-region=${group.region}">
+    <div class="health-region-heading">
+        <h3 class="text-primary" th:text="${group.region}">BRE AA</h3>
+        <span class="text-on-surface-variant" th:text="|(${#lists.size(group.systems)})|">(0)</span>
+    </div>
+    <div class="health-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-gutter">
+        <div th:each="system : ${group.systems}"
+             th:data-status="${system.status.name()}"
+             th:data-environment="${system.environment}"
+             th:attr="data-monitor-id=${system.id}, data-monitor-tier=${system.deploymentTier}, data-deployment-tier=${system.deploymentTier}, data-environment-id=${system.environmentId}, data-region=${group.region}, data-search=${system.name + ' ' + system.host + ' ' + system.port + ' ' + system.environment + ' ' + system.region + ' ' + (system.deploymentTier != null ? system.deploymentTier : '') + ' ' + (system.environmentId != null ? system.environmentId : '') + ' ' + (system.serviceUrl != null ? system.serviceUrl : '')}"
+             class="health-card bg-surface border border-outline-variant rounded-xl shadow-sm hover:shadow-md transition-all duration-300 group overflow-hidden">
+            <div class="health-card-header border-b border-outline-variant bg-surface-container-lowest flex items-center justify-between gap-2">
+                <div class="min-w-0 flex-1 pr-1">
+        <h3 class="health-card-title text-primary truncate" th:text="${system.name}">Service</h3>
+                </div>
+                <div class="flex items-center gap-0.5 shrink-0">
+                <button th:if="${system.id != null}" type="button" class="health-card-edit"
+                        th:attr="data-monitor-id=${system.id}, data-monitor-tier=${system.deploymentTier}, aria-label=${'Edit ' + system.name}" title="Edit system">
+                    <span class="material-symbols-outlined text-[18px]">edit</span>
+                </button>
+                <button th:if="${system.id != null}" type="button" class="health-card-remove"
+                        th:attr="data-monitor-id=${system.id}, data-monitor-tier=${system.deploymentTier}, aria-label=${'Remove ' + system.name}" title="Remove system">
+                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                </button>
+                <span class="health-status-badge"
+                      th:classappend="${system.status.name() == 'UP'} ? ' bg-green-100 text-green-700' : (${system.status.name() == 'DOWN'} ? ' bg-red-100 text-red-700' : ' bg-orange-100 text-orange-700')">
+                    <span th:class="${system.status.name() == 'UP'} ? 'w-2 h-2 bg-green-500 rounded-full animate-pulse' : (${system.status.name() == 'DOWN'} ? 'w-2 h-2 bg-red-500 rounded-full' : 'w-2 h-2 bg-orange-500 rounded-full animate-pulse')"></span>
+                    <span th:text="${system.statusLabel}">UP</span>
+                </span>
+                </div>
+            </div>
+            <div class="health-card-body">
+                <div class="health-card-row">
+                    <span class="health-card-row-label">Last check</span>
+                    <time class="health-card-last-check health-card-row-value"
+                          th:classappend="${system.status.name() == 'DOWN'} ? 'text-error' : 'text-on-surface'"
+                          th:datetime="${#temporals.format(system.lastChecked, 'yyyy-MM-dd''T''HH:mm:ssXXX')}"
+                          th:text="${#temporals.format(system.lastChecked, 'd MMM yyyy, HH:mm:ss')}">29 May 2026, 14:30:00</time>
+                </div>
+                <div th:if="${modelHubEnabled}" class="health-card-row">
+                    <span class="health-card-row-label">HTTP 200</span>
+                    <span th:if="${system.fromModelHub()}"
+                          class="health-card-row-value health-metric-ok"
+                          th:text="${#numbers.formatInteger(system.requests200, 1, 'COMMA')}">0</span>
+                    <span th:unless="${system.fromModelHub()}" class="health-card-row-value health-card-row-value--empty">—</span>
+                </div>
+                <div th:if="${modelHubEnabled}" class="health-card-row">
+                    <span class="health-card-row-label">HTTP 500</span>
+                    <span th:if="${system.fromModelHub()}"
+                          class="health-card-row-value"
+                          th:classappend="${system.requests500 > 0} ? 'health-metric-err' : 'text-on-surface'"
+                          th:text="${#numbers.formatInteger(system.requests500, 1, 'COMMA')}">0</span>
+                    <span th:unless="${system.fromModelHub()}" class="health-card-row-value health-card-row-value--empty">—</span>
+                </div>
+                <div th:if="${!modelHubEnabled}" class="health-card-row">
+                    <span class="health-card-row-label">Response time</span>
+                    <span th:if="${system.status.name() == 'UP'}"
+                          class="health-card-row-value text-on-surface"
+                          th:text="${system.responseTimeMs} + ' ms'">0 ms</span>
+                    <span th:unless="${system.status.name() == 'UP'}" class="health-card-row-value health-card-row-value--empty">—</span>
+                </div>
+                <div class="health-card-row">
+                    <span class="health-card-row-label">IP</span>
+                    <span class="health-card-row-value text-on-surface truncate max-w-[58%]" th:text="${system.host}">localhost</span>
+                </div>
+                <div class="health-card-row">
+                    <span class="health-card-row-label">Port</span>
+                    <span class="health-card-row-value text-on-surface" th:text="${system.port}">8080</span>
+                </div>
+                <div th:if="${system.errorMessage != null and system.status.name() != 'DOWN'}" class="mt-2.5 rounded-lg border border-error/30 bg-red-50 px-2.5 py-2 text-error text-xs leading-snug" th:text="${system.errorMessage}">Error</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="health-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-gutter mt-unit-lg">
+<button type="button" id="register-service-card"
+        class="health-card border-2 border-dashed border-outline-variant rounded-xl text-on-surface-variant hover:border-secondary hover:text-secondary transition-all group bg-surface-container-lowest/50 flex flex-col">
+    <span class="material-symbols-outlined text-[28px] leading-none group-hover:scale-105 transition-transform">add_circle</span>
+    <span class="text-sm font-medium text-on-surface group-hover:text-secondary mt-1">Add System</span>
+</button>
+</div>
+</div>
+<p th:if="${#lists.isEmpty(systems)}" class="w-full text-center text-on-surface-variant font-body-sm py-6">No systems configured yet. Add IP, port, and environment to start monitoring.</p>
 <p id="health-no-results" class="hidden w-full text-center text-on-surface-variant font-body-sm py-8">No systems match your search or filters.</p>
 </div>
+<th:block th:replace="~{fragments/page-shell :: page-footer(hint='System Health monitoring')}"/>
 </main>
 
 <div id="register-modal" class="fixed inset-0 z-[60] flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300 bg-primary/80 backdrop-blur-sm p-unit-md">
 <div id="register-modal-panel" class="w-full max-w-lg bg-surface-container-lowest border border-outline-variant rounded-xl shadow-2xl transform translate-y-4 transition-transform duration-300">
 <div class="register-modal-header border-b border-outline-variant flex items-center justify-between gap-3">
 <div class="min-w-0">
-<h3 class="text-lg font-bold leading-tight text-primary">Register Service</h3>
-<p class="text-xs text-on-surface-variant mt-0.5 leading-snug">Add a host to monitor via Spring Actuator</p>
+<h3 id="register-modal-title" class="text-lg font-bold leading-tight text-primary">Add System</h3>
+<p id="register-modal-subtitle" class="text-xs text-on-surface-variant mt-0.5 leading-snug">Add IP, port, environment, service name, and group</p>
 </div>
 <button type="button" id="register-modal-close" class="p-2 rounded-full hover:bg-surface-container-low text-on-surface-variant shrink-0" aria-label="Close">
 <span class="material-symbols-outlined">close</span>
 </button>
 </div>
 <form id="register-form">
+<input type="hidden" id="reg-monitor-id" value=""/>
 <div id="register-error" class="hidden rounded-lg border border-error/30 bg-red-100 px-3 py-2 text-error text-sm"></div>
+<div>
+<label class="block text-xs font-medium text-on-surface-variant mb-1" for="reg-environment">Environment</label>
+<select id="reg-environment" name="environment" required
+        class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 text-body-sm text-on-surface focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20">
+    <option value="UAT">UAT — emicardbre.bajajfinserv.in</option>
+    <option value="PROD">Prod — emicardbre-prod.bajajfinserv.in</option>
+</select>
+</div>
 <div>
 <label class="block text-xs font-medium text-on-surface-variant mb-1" for="reg-name">Service name</label>
 <input id="reg-name" name="name" required maxlength="120" placeholder="e.g. Payment Gateway"
@@ -232,24 +422,12 @@
        class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 text-body-sm text-on-surface focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20"/>
 </div>
 </div>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-unit-md">
 <div>
-<label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="reg-environment">Environment</label>
-<select id="reg-environment" name="environment" required
-        class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 text-body-sm text-on-surface focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20">
-<option value="">Select environment</option>
-<option value="Production">Production</option>
-<option value="UAT">UAT</option>
-<option value="Development">Development</option>
-</select>
-</div>
-<div>
-<label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="reg-region">Region</label>
-<input id="reg-region" name="region" placeholder="US-East-1"
+<label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="reg-region">Group name</label>
+<input id="reg-region" name="region" required placeholder="e.g. BRE AUTH"
        class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 text-body-sm text-on-surface focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20"/>
 </div>
-</div>
-<div>
+<div th:if="${!modelHubEnabled}">
 <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="reg-actuator">Actuator path <span class="text-on-surface-variant/70">(optional)</span></label>
 <input id="reg-actuator" name="actuatorPath" placeholder="/actuator/health"
        class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 text-body-sm text-on-surface focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20"/>
@@ -272,13 +450,7 @@
 <button type="button" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container rounded-full p-1" onclick="document.getElementById('activity-panel').classList.add('translate-x-full')">close</button>
 </div>
 <div class="flex-1 overflow-y-auto space-y-unit-md pr-2 custom-scrollbar">
-<div class="p-unit-sm rounded-lg border border-outline-variant hover:bg-surface-container-low transition-colors">
-<div class="flex items-center gap-unit-sm mb-1">
-<span class="material-symbols-outlined text-secondary text-[18px]">info</span>
-<span class="font-label-md text-label-md text-secondary">Health Monitor</span>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface">Actuator checks run on each page load and every 30 seconds.</p>
-</div>
+<th:block th:replace="~{fragments/activity-feed :: activity-list(activities=${activities}, emptyMessage='No recent activity yet. Events appear when users sign in, services change health status, or roles are updated.')}"/>
 </div>
 </div>
 </div>
@@ -289,6 +461,8 @@
 
 <script th:inline="javascript">
     const refreshSeconds = /*[[${refreshSeconds}]]*/ 30;
+    const modelHubEnabled = /*[[${modelHubEnabled}]]*/ true;
+    const initialStatusFilter = /*[[${initialStatusFilter}]]*/ '';
     let countdown = refreshSeconds;
     const refreshText = document.getElementById('refresh-countdown');
     const refreshNowBtn = document.getElementById('refresh-now');
@@ -299,10 +473,13 @@
         if (countdown <= 0) {
             countdown = refreshSeconds;
         }
-        refreshText.textContent = `Next refresh ${countdown}s`;
+        if (refreshText) {
+            refreshText.textContent = `Next refresh ${countdown}s`;
+        }
     }, 1000);
 
-    refreshNowBtn.addEventListener('click', async () => {
+    refreshNowBtn?.addEventListener('click', async () => {
+        if (!refreshIcon || !refreshNowBtn) return;
         refreshIcon.classList.add('animate-spin');
         refreshNowBtn.disabled = true;
         try {
@@ -312,20 +489,64 @@
         }
     });
 
+    document.getElementById('health-sections')?.addEventListener('click', async e => {
+        const editBtn = e.target.closest('.health-card-edit');
+        if (editBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            await openEditModal(editBtn.dataset.monitorId, editBtn.dataset.monitorTier);
+            return;
+        }
+
+        const removeBtn = e.target.closest('.health-card-remove');
+        if (!removeBtn) return;
+        e.preventDefault();
+        e.stopPropagation();
+
+        const monitorId = removeBtn.dataset.monitorId;
+        const monitorTier = removeBtn.dataset.monitorTier || 'UAT';
+        const card = removeBtn.closest('.health-card');
+        const label = card?.querySelector('h3')?.textContent?.trim() || 'this system';
+        if (!confirm(`Remove ${label} from monitoring?`)) {
+            return;
+        }
+
+        removeBtn.disabled = true;
+        try {
+            const response = await fetch(`/api/health/monitors/${monitorTier.toLowerCase()}/${monitorId}`, { method: 'DELETE' });
+            if (!response.ok) {
+                const data = await response.json().catch(() => ({}));
+                alert(data.message || 'Could not remove system.');
+                removeBtn.disabled = false;
+                return;
+            }
+            window.location.reload();
+        } catch (err) {
+            alert('Network error. Please try again.');
+            removeBtn.disabled = false;
+        }
+    });
+
     const filterAllBtn = document.getElementById('health-filter-all');
     const statusFilterSelect = document.getElementById('health-status-filter');
     const envFilterSelect = document.getElementById('health-env-filter');
-    const cards = document.querySelectorAll('.health-card');
+    const cards = document.querySelectorAll('.health-card[data-status]');
     const searchInput = document.getElementById('health-search');
     const noResults = document.getElementById('health-no-results');
     let statusFilter = '';
-    let envFilter = '';
+    let envFilter = envFilterSelect?.value || 'UAT';
+
+    if (initialStatusFilter === 'UP' || initialStatusFilter === 'DOWN') {
+        statusFilter = initialStatusFilter;
+        if (statusFilterSelect) {
+            statusFilterSelect.value = initialStatusFilter;
+        }
+    }
 
     function matchesFilter(card) {
+        const cardTier = (card.dataset.deploymentTier || 'UAT').toUpperCase();
+        if (envFilter && cardTier !== envFilter) return false;
         if (statusFilter && card.dataset.status !== statusFilter) return false;
-        const env = (card.dataset.environment || '').toLowerCase();
-        if (envFilter === 'PROD' && env !== 'production') return false;
-        if (envFilter === 'UAT' && env !== 'uat') return false;
         return true;
     }
 
@@ -335,14 +556,14 @@
     }
 
     function syncFilterStyles() {
-        const showAll = !statusFilter && !envFilter;
+        const showAll = !statusFilter;
         filterAllBtn.classList.toggle('bg-primary', showAll);
         filterAllBtn.classList.toggle('text-on-primary', showAll);
         filterAllBtn.classList.toggle('shadow-sm', showAll);
         filterAllBtn.classList.toggle('bg-surface-container', !showAll);
         filterAllBtn.classList.toggle('text-on-surface-variant', !showAll);
         statusFilterSelect.classList.toggle('filter-active', !!statusFilter);
-        envFilterSelect.classList.toggle('filter-active', !!envFilter);
+        envFilterSelect.classList.toggle('filter-active', true);
     }
 
     function applyVisibility() {
@@ -352,15 +573,18 @@
             card.classList.toggle('hidden', !show);
             if (show) visible++;
         });
+        document.querySelectorAll('.health-region-section').forEach(section => {
+            const sectionCards = section.querySelectorAll('.health-card[data-status]');
+            const sectionVisible = Array.from(sectionCards).some(card => !card.classList.contains('hidden'));
+            section.classList.toggle('hidden', !sectionVisible);
+        });
         if (noResults) noResults.classList.toggle('hidden', visible > 0 || cards.length === 0);
         syncFilterStyles();
     }
 
     filterAllBtn.addEventListener('click', () => {
         statusFilter = '';
-        envFilter = '';
         statusFilterSelect.value = '';
-        envFilterSelect.value = '';
         applyVisibility();
     });
 
@@ -384,22 +608,94 @@
     const registerSubmit = document.getElementById('register-submit');
     const registerSubmitIcon = document.getElementById('register-submit-icon');
     const registerSubmitLabel = document.getElementById('register-submit-label');
+    const registerModalTitle = document.getElementById('register-modal-title');
+    const registerModalSubtitle = document.getElementById('register-modal-subtitle');
+    const monitorIdInput = document.getElementById('reg-monitor-id');
+    const envSelect = document.getElementById('reg-environment');
+    const regionInput = document.getElementById('reg-region');
+
+    function selectedEnvironmentTier() {
+        return (envSelect?.value || 'UAT').toUpperCase() === 'PROD' ? 'PROD' : 'UAT';
+    }
+
+    function setModalMode(mode) {
+        const editing = mode === 'edit';
+        registerModalTitle.textContent = editing ? 'Edit System' : 'Add System';
+        registerModalSubtitle.textContent = editing
+            ? 'Update service name, IP, port, environment, or group'
+            : 'Add IP, port, environment, service name, and group';
+        registerSubmitLabel.textContent = editing ? 'Save Changes' : 'Save & Monitor';
+    }
 
     function openRegisterModal() {
         registerError.classList.add('hidden');
         registerError.textContent = '';
         registerForm.reset();
+        monitorIdInput.value = '';
+        if (envSelect) {
+            envSelect.disabled = false;
+            envSelect.value = envFilter || 'UAT';
+        }
+        setModalMode('add');
         registerModal.classList.add('open');
         document.body.style.overflow = 'hidden';
         document.getElementById('reg-name').focus();
     }
 
+    async function openEditModal(monitorId, monitorTier) {
+        registerError.classList.add('hidden');
+        registerError.textContent = '';
+        registerForm.reset();
+        monitorIdInput.value = monitorId;
+        const tier = (monitorTier || 'UAT').toUpperCase();
+        if (envSelect) {
+            envSelect.value = tier;
+            envSelect.disabled = true;
+        }
+        setModalMode('edit');
+
+        try {
+            const response = await fetch(`/api/health/monitors/${tier.toLowerCase()}/${monitorId}`);
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                alert(data.message || 'Could not load system details.');
+                return;
+            }
+
+            document.getElementById('reg-name').value = data.name || '';
+            document.getElementById('reg-host').value = data.host || '';
+            document.getElementById('reg-port').value = data.port || '';
+            if (envSelect && data.tier) {
+                envSelect.value = data.tier.toUpperCase();
+            }
+            if (regionInput) {
+                regionInput.value = data.region || '';
+            }
+
+            if (!modelHubEnabled) {
+                const actuatorInput = document.getElementById('reg-actuator');
+                if (actuatorInput) {
+                    actuatorInput.value = data.actuatorPath || '';
+                }
+            }
+
+            registerModal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+            document.getElementById('reg-name').focus();
+        } catch (err) {
+            alert('Network error. Please try again.');
+        }
+    }
+
     function closeRegisterModal() {
         registerModal.classList.remove('open');
         document.body.style.overflow = '';
+        monitorIdInput.value = '';
+        if (envSelect) envSelect.disabled = false;
+        setModalMode('add');
     }
 
-    document.getElementById('register-service-card').addEventListener('click', openRegisterModal);
+    document.getElementById('register-service-card')?.addEventListener('click', openRegisterModal);
     document.getElementById('register-modal-close').addEventListener('click', closeRegisterModal);
     document.getElementById('register-cancel').addEventListener('click', closeRegisterModal);
     registerModal.addEventListener('click', e => {
@@ -420,24 +716,32 @@
         registerSubmitIcon.classList.add('animate-spin');
         registerSubmitLabel.textContent = 'Saving...';
 
+        const tier = selectedEnvironmentTier();
         const payload = {
+            tier,
             name: document.getElementById('reg-name').value.trim(),
             host: document.getElementById('reg-host').value.trim(),
             port: parseInt(document.getElementById('reg-port').value, 10),
-            environment: document.getElementById('reg-environment').value,
-            region: document.getElementById('reg-region').value.trim() || null,
-            actuatorPath: document.getElementById('reg-actuator').value.trim() || null
+            region: regionInput?.value.trim() || null
         };
 
+        if (!modelHubEnabled) {
+            payload.environment = tier === 'PROD' ? 'Production' : 'UAT';
+            payload.actuatorPath = document.getElementById('reg-actuator')?.value.trim() || null;
+        }
+
         try {
-            const response = await fetch('/api/health/monitors', {
-                method: 'POST',
+            const monitorId = monitorIdInput.value.trim();
+            const url = monitorId ? `/api/health/monitors/${tier.toLowerCase()}/${monitorId}` : '/api/health/monitors';
+            const method = monitorId ? 'PUT' : 'POST';
+            const response = await fetch(url, {
+                method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
             const data = await response.json().catch(() => ({}));
             if (!response.ok) {
-                registerError.textContent = data.message || 'Could not register service.';
+                registerError.textContent = data.message || (monitorId ? 'Could not update system.' : 'Could not register service.');
                 registerError.classList.remove('hidden');
                 return;
             }
@@ -449,7 +753,7 @@
             registerSubmit.disabled = false;
             registerSubmitIcon.textContent = 'save';
             registerSubmitIcon.classList.remove('animate-spin');
-            registerSubmitLabel.textContent = 'Save & Monitor';
+            registerSubmitLabel.textContent = monitorIdInput.value.trim() ? 'Save Changes' : 'Save & Monitor';
         }
     });
 </script>
